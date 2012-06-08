@@ -3,6 +3,10 @@ aws-sqs
 
 AWS Simple Queue Service library for Node.js
 
+## Install
+
+    npm install aws-sqs
+
 ## Docs
 You can checkout the class documentation at [SQS Class](http://onmodulus.github.com/aws-sqs/symbols/SQS.html).
 
