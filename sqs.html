@@ -1,0 +1,1065 @@
+<head>
+  <script>
+    var raw = [{"id":"2-1339027939881","name":"SQS","signiture":"SQS()","type":"function","ctx":{"type":"function","name":"SQS","string":"SQS()"},"description":{"full":"<p>Simple Queue Service, used to communicate and run commands against Amazon's<br />SQS.</p>","summary":"<p>Simple Queue Service, used to communicate and run commands against Amazon's<br />SQS.</p>","body":""},"full_description":"<p>Simple Queue Service, used to communicate and run commands against Amazon's SQS.</p>","code":"var SQS = function(accessKeyId, secretAccessKey, opts) {\n\n  // optional parameters\n  opts = opts || {};\n  this.accessKeyId = accessKeyId;\n  this.secretAccessKey = secretAccessKey;\n  this.region = opts.region || 'us-east-1';\n  this.host = 'sqs.' + this.region + '.amazonaws.com';\n};","params":[{"type":"param","types":["string"],"name":"accessKeyId","description":"key id"},{"type":"param","types":["string"],"name":"secretAccessKey","description":"secret access key"},{"type":"param","types":["object"],"name":"opts","description":"(optional) optional parameters"},{"type":"param","types":["string"],"name":"opts.region","description":"(optional) the aws region, must be one of these:"}],"has_params":true,"tags":[{"type":"param","types":["string"],"name":"accessKeyId","description":"key id"},{"type":"param","types":["string"],"name":"secretAccessKey","description":"secret access key"},{"type":"param","types":["object"],"name":"opts","description":"(optional) optional parameters"},{"type":"param","types":["string"],"name":"opts.region","description":"(optional) the aws region, must be one of these:"},{"type":"","string":"us-east-1, us-west-1, us-west-2, eu-west-1, ap-southeast-1, ap-northeast-1"},{"type":"module","string":""}],"module":true,"related":{"href":""},"has_related":true,"methods":[{"id":"3-1339027939881","name":"createQueue","signiture":"SQS.prototype.createQueue()","type":"method","ctx":{"type":"method","constructor":"SQS","name":"createQueue","string":"SQS.prototype.createQueue()"},"description":{"full":"<p>Create a SQS queue</p>","summary":"<p>Create a SQS queue</p>","body":""},"full_description":"<p>Create a SQS queue</p>","code":"SQS.prototype.createQueue = function(name, attrs, fn) {\n  if(!fn) {\n    fn = attrs;\n    attrs = null;\n  }\n\n  // Check name to make sure meets constraints\n  if(name.length > 80 || name.search(\" \") != -1) {\n    fn('Name is constrained to maximum 80 characters; ' +\n       'alphanumeric characters, hyphens (-), and underscores (_).', null);\n    return;\n  }\n\n  var params = {\n    QueueName : name\n  };\n\n  if(attrs) {\n    var i = 1;\n    for(var prop in attrs) {\n      params[\"Attribute.\" + i + \".Name\"] = prop;\n      params[\"Attribute.\" + i + \".Value\"] = attrs[prop];\n      i++;\n    }\n  }\n\n  var host = this.host;\n  var aws = awsjs.createSQSClient(\n    this.accessKeyId,\n    this.secretAccessKey,\n    {\n      host : this.host,\n      secure: true,\n      version: '2011-10-01'\n  });\n\n  makeCall(aws, 'CreateQueue', params, function(err, result) {\n    var url = '';\n\n    if(result && result.CreateQueueResult) {\n      url = result.CreateQueueResult.QueueUrl;\n    }\n\n    var name = url.replace('https://' + host, '');\n\n    fn(err, name);\n  });\n};","params":[{"type":"param","types":["string"],"name":"name","description":"The name of the queue"},{"type":"param","types":["object"],"name":"attrs","description":"(optional) Attributes for the queue."},{"type":"param","types":["number"],"name":"attrs.VisibilityTimeout","description":"(optional) The length of time (in seconds) that a"},{"type":"param","types":["attrs.Policy"],"name":"(optional)","description":"The formal description of the permissions for a resource."},{"type":"param","types":["attrs.MaximumMessageSize"],"name":"(optional)","description":"The limit of how many bytes a message can"},{"type":"param","types":["attrs.MessageRetentionPeriod]"],"name":"The","description":"number of seconds Amazon SQS retains a"},{"type":"param","types":["attrs.DelaySeconds"],"name":"(optional)","description":"The time in seconds that the delivery of all messages"},{"type":"param","types":["Function"],"name":"fn","description":"Callback function for when queue is created, Callback"}],"has_params":true,"tags":[{"type":"param","types":["string"],"name":"name","description":"The name of the queue"},{"type":"","string":"Constraints: Maximum 80 characters; alphanumeric characters, hyphens (-),"},{"type":"","string":"and underscores (_) are allowed."},{"type":"param","types":["object"],"name":"attrs","description":"(optional) Attributes for the queue."},{"type":"param","types":["number"],"name":"attrs.VisibilityTimeout","description":"(optional) The length of time (in seconds) that a"},{"type":"message","string":"received from a queue will be invisible to other receiving components"},{"type":"when","string":"they ask to receive messages. For more information about"},{"type":"VisibilityTimeout,","string":"see Visibility Timeout in the Amazon SQS Developer Guide."},{"type":"An","string":"integer from 0 to 43200 (12 hours). The default for this attribute is 30."},{"type":"param","types":["attrs.Policy"],"name":"(optional)","description":"The formal description of the permissions for a resource."},{"type":"For","string":"more information about Policy, see Basic Policy Structure in the Amazon"},{"type":"SQS","string":"Developer Guide. A valid form-url-encoded policy. For more information"},{"type":"about","string":"policy structure, see Basic Policy Structure in the Amazon SQS"},{"type":"Developer","string":"Guide. For more information about form-url-encoding,"},{"type":"see","title":"","url":"http://www.w3.org/MarkUp/html-spec/html-spec_8.html#SEC8.2.1.","visibility":"http://www.w3.org/MarkUp/html-spec/html-spec_8.html#SEC8.2.1."},{"type":"param","types":["attrs.MaximumMessageSize"],"name":"(optional)","description":"The limit of how many bytes a message can"},{"type":"contain","string":"before Amazon SQS rejects it. An integer from 1024 bytes (1 KiB) up"},{"type":"to","string":"65536 bytes (64 KiB). The default for this attribute is 65536 (64 KiB)."},{"type":"param","types":["attrs.MessageRetentionPeriod]"],"name":"The","description":"number of seconds Amazon SQS retains a"},{"type":"message.","string":"Integer representing seconds, from 60 (1 minute) to 1209600"},{"type":"(14","string":"days). The default for this attribute is 345600 (4 days)."},{"type":"param","types":["attrs.DelaySeconds"],"name":"(optional)","description":"The time in seconds that the delivery of all messages"},{"type":"in","string":"the queue will be delayed. An integer from 0 to 900 (15 minutes). The"},{"type":"default","string":"for this attribute is 0 (zero)."},{"type":"param","types":["Function"],"name":"fn","description":"Callback function for when queue is created, Callback"},{"type":"function","string":"takes two parameters error and result, result will be full name"},{"type":"for","string":"the queue."},{"type":"see","local":"SQS.prototype.deleteQueue","visibility":"SQS.prototype.deleteQueue"},{"type":"memberOf","parent":"SQS"}],"module":false,"parent":"SQS","related":{"href":""},"has_related":true},{"id":"4-1339027939882","name":"deleteQueue","signiture":"SQS.prototype.deleteQueue()","type":"method","ctx":{"type":"method","constructor":"SQS","name":"deleteQueue","string":"SQS.prototype.deleteQueue()"},"description":{"full":"<p>Deletes a SQS queue.</p>","summary":"<p>Deletes a SQS queue.</p>","body":""},"full_description":"<p>Deletes a SQS queue.</p>","code":"SQS.prototype.deleteQueue = function(name, fn) {\n  var aws = awsjs.createSQSClient(\n    this.accessKeyId,\n    this.secretAccessKey,\n    {\n      host : this.host,\n      path : name,\n      secure: true\n  });\n\n  makeCall(aws, 'DeleteQueue', {}, function(err, result) {\n    fn(err);\n  });\n};","params":[{"type":"param","types":["string"],"name":"name","description":"The full name for the queue, should be something like"},{"type":"param","types":["Function"],"name":"fn","description":"Callback function for when queue is created"}],"has_params":true,"tags":[{"type":"param","types":["string"],"name":"name","description":"The full name for the queue, should be something like"},{"type":"/12312301239/nameOfQueue.","string":""},{"type":"param","types":["Function"],"name":"fn","description":"Callback function for when queue is created"},{"type":"","string":"Callback function takes one parameter, error"},{"type":"see","local":"SQS.prototype.createQueue","visibility":"SQS.prototype.createQueue"},{"type":"memberOf","parent":"SQS"}],"module":false,"parent":"SQS","related":{"href":""},"has_related":true},{"id":"5-1339027939882","name":"getQueueUrl","signiture":"SQS.prototype.getQueueUrl()","type":"method","ctx":{"type":"method","constructor":"SQS","name":"getQueueUrl","string":"SQS.prototype.getQueueUrl()"},"description":{"full":"<p>Returns the full qualified url for a queue.</p>","summary":"<p>Returns the full qualified url for a queue.</p>","body":""},"full_description":"<p>Returns the full qualified url for a queue.</p>","code":"SQS.prototype.getQueueUrl = function(name, fn) {\n  var aws = awsjs.createSQSClient(\n    this.accessKeyId,\n    this.secretAccessKey,\n    {\n      host : this.host,\n      secure: true,\n      version: '2011-10-01'\n  });\n  var params = {\n    QueueName : name\n  };\n  makeCall(aws, 'GetQueueUrl', params, function(err, result) {\n    var url = '';\n    if(result && result.GetQueueUrlResult) {\n      url = result.GetQueueUrlResult.QueueUrl;\n    }\n    fn(err, url);\n  });\n};","params":[{"type":"param","types":["string"],"name":"name","description":"The full name of the queue, should be something like"},{"type":"param","types":["Function"],"name":"fn","description":"The callback for when the url is retrieved, Callback"}],"has_params":true,"tags":[{"type":"param","types":["string"],"name":"name","description":"The full name of the queue, should be something like"},{"type":"/12312301239/nameOfQueue.","string":""},{"type":"param","types":["Function"],"name":"fn","description":"The callback for when the url is retrieved, Callback"},{"type":"function","string":"should take two parameters, error and result which is queue url"},{"type":"see","local":"SQS.prototype.listQueues","visibility":"SQS.prototype.listQueues"},{"type":"memberOf","parent":"SQS"}],"module":false,"parent":"SQS","related":{"href":""},"has_related":true},{"id":"6-1339027939882","name":"listQueues","signiture":"SQS.prototype.listQueues()","type":"method","ctx":{"type":"method","constructor":"SQS","name":"listQueues","string":"SQS.prototype.listQueues()"},"description":{"full":"<p>Returns a list of available queues.</p>","summary":"<p>Returns a list of available queues.</p>","body":""},"full_description":"<p>Returns a list of available queues.</p>","code":"SQS.prototype.listQueues = function(prefix, fn) {\n  if(!fn) {\n    fn = prefix;\n    prefix = null;\n  }\n\n  var host = this.host;\n\n  var aws = awsjs.createSQSClient(\n    this.accessKeyId,\n    this.secretAccessKey,\n    {\n      host : this.host,\n      secure: true,\n      version: '2011-10-01'\n  });\n\n  var params = {};\n  if(prefix) {\n    params.QueueNamePrefix = prefix;\n  }\n\n  makeCall(aws, 'ListQueues', params, function(err, result) {\n    var urls = [];\n    if(result && result.ListQueuesResult) {\n      urls = result.ListQueuesResult.QueueUrl;\n\n      if(typeof urls === 'string') {\n        urls = [urls];\n      }\n    }\n    for(var i = 0; i < urls.length; i++) {\n      urls[i] = urls[i].replace('https://' + host, '');\n    }\n    fn(err, urls);\n  });\n};","params":[{"type":"param","types":["string"],"name":"prefix","description":"(optional) Queue name prefix to filter the list of queues to"},{"type":"param","types":["Function"],"name":"fn","description":"The callback for when the queue list is retrieved,"}],"has_params":true,"tags":[{"type":"param","types":["string"],"name":"prefix","description":"(optional) Queue name prefix to filter the list of queues to"},{"type":"return.","string":""},{"type":"param","types":["Function"],"name":"fn","description":"The callback for when the queue list is retrieved,"},{"type":"Callback","string":"function should take two parameters, error and result which is"},{"type":"an","string":"array of queue names"},{"type":"see","local":"SQS.prototype.getQueueUrl","visibility":"SQS.prototype.getQueueUrl"},{"type":"memberOf","parent":"SQS"}],"module":false,"parent":"SQS","related":{"href":""},"has_related":true},{"id":"7-1339027939882","name":"sendMessage","signiture":"SQS.prototype.sendMessage()","type":"method","ctx":{"type":"method","constructor":"SQS","name":"sendMessage","string":"SQS.prototype.sendMessage()"},"description":{"full":"<p>Sends a message to a queue.</p>","summary":"<p>Sends a message to a queue.</p>","body":""},"full_description":"<p>Sends a message to a queue.</p>","code":"SQS.prototype.sendMessage = function(queue, message, delay, fn) {\n  if(!fn) {\n    fn = delay;\n    delay = null;\n  }\n\n  var aws = awsjs.createSQSClient(\n    this.accessKeyId,\n    this.secretAccessKey,\n    {\n      host : this.host,\n      path : queue,\n      secure: true\n  });\n\n  var params = {\n    MessageBody : message\n  };\n\n  if(delay) {\n    params.DelaySeconds = delay;\n  }\n\n  makeCall(aws, 'SendMessage', params, function(err, result) {\n    if(err) {\n      fn(err, null);\n    } else {\n      var ret = null;\n      if(result.SendMessageResult) {\n        ret = result.SendMessageResult;\n      }\n      fn(err, ret);\n    }\n  });\n};","params":[{"type":"param","types":["string"],"name":"queue","description":"The full name of the queue. Should be something like"},{"type":"param","types":["string"],"name":"message","description":"The message to add to the queue."},{"type":"param","types":["number"],"name":"delay","description":"(optional) The delay to wait before the message is actually"},{"type":"param","types":["Function"],"name":"fn","description":"The callback for when the message is add to queue,"}],"has_params":true,"tags":[{"type":"param","types":["string"],"name":"queue","description":"The full name of the queue. Should be something like"},{"type":"/12312301239/nameOfQueue.","string":""},{"type":"param","types":["string"],"name":"message","description":"The message to add to the queue."},{"type":"param","types":["number"],"name":"delay","description":"(optional) The delay to wait before the message is actually"},{"type":"visible","string":"in the queue."},{"type":"param","types":["Function"],"name":"fn","description":"The callback for when the message is add to queue,"},{"type":"Callback","string":"function should take two parameters, error and result which is"},{"type":"and","string":"the message details."},{"type":"see","local":"SQS.prototype.sendMessageBatch","visibility":"SQS.prototype.sendMessageBatch"},{"type":"memberOf","parent":"SQS"}],"module":false,"parent":"SQS","related":{"href":""},"has_related":true},{"id":"8-1339027939882","name":"sendMessageBatch","signiture":"SQS.prototype.sendMessageBatch()","type":"method","ctx":{"type":"method","constructor":"SQS","name":"sendMessageBatch","string":"SQS.prototype.sendMessageBatch()"},"description":{"full":"<p>Sends a batch of messages to a queue.</p>","summary":"<p>Sends a batch of messages to a queue.</p>","body":""},"full_description":"<p>Sends a batch of messages to a queue.</p>","code":"SQS.prototype.sendMessageBatch = function(queue, messages, fn) {\n  var aws = awsjs.createSQSClient(\n    this.accessKeyId,\n    this.secretAccessKey,\n    {\n      host : this.host,\n      path : queue,\n      secure: true\n  });\n\n  var params = {};\n\n  for (var i = 0; i < messages.length; i++) {\n    var index = i + 1;\n    params['SendMessageBatchRequestEntry.' + index + '.Id'] = i;\n    params['SendMessageBatchRequestEntry.' + index + '.MessageBody'] = messages[i].message;\n    if(messages[i].delay) {\n      params['SendMessageBatchRequestEntry.' + index + '.DelaySeconds'] = messages[i].delay;\n    }\n  }\n\n  makeCall(aws, 'SendMessageBatch', params, function(err, result) {\n    if(err) {\n      fn(err, null);\n    } else {\n      var ret = null;\n      if(result.SendMessageBatchResult &&\n         result.SendMessageBatchResult.SendMessageBatchResultEntry)\n      {\n        ret = result.SendMessageBatchResult.SendMessageBatchResultEntry;\n      }\n      fn(err, ret);\n    }\n  });\n};","params":[{"type":"param","types":["string"],"name":"queue","description":"The full name of the queue. Should be something like"},{"type":"param","types":["Array"],"name":"messages","description":"An array of objects, each object should have"},{"type":"param","types":["Function"],"name":"fn","description":"The callback for when the message is add to queue,"}],"has_params":true,"tags":[{"type":"param","types":["string"],"name":"queue","description":"The full name of the queue. Should be something like"},{"type":"/12231231231/nameOfQueue.","string":""},{"type":"param","types":["Array"],"name":"messages","description":"An array of objects, each object should have"},{"type":"message","string":"property and optional delay property."},{"type":"param","types":["Function"],"name":"fn","description":"The callback for when the message is add to queue,"},{"type":"Callback","string":"function should take two parameters, error and result which is"},{"type":"an","string":"array of message details."},{"type":"see","local":"SQS.prototype.sendMessage","visibility":"SQS.prototype.sendMessage"},{"type":"memberOf","parent":"SQS"}],"module":false,"parent":"SQS","related":{"href":""},"has_related":true},{"id":"9-1339027939882","name":"receiveMessage","signiture":"SQS.prototype.receiveMessage()","type":"method","ctx":{"type":"method","constructor":"SQS","name":"receiveMessage","string":"SQS.prototype.receiveMessage()"},"description":{"full":"<p>Retrieves any messages from a queue if any are available. If none are<br />available then an empty array is returned as the result.</p>","summary":"<p>Retrieves any messages from a queue if any are available. If none are<br />available then an empty array is returned as the result.</p>","body":""},"full_description":"<p>Retrieves any messages from a queue if any are available. If none are available then an empty array is returned as the result.</p>","code":"SQS.prototype.receiveMessage = function(queue, opts, fn) {\n  if(!fn) {\n    fn = opts;\n    opts = null;\n  }\n\n  var aws = awsjs.createSQSClient(\n    this.accessKeyId,\n    this.secretAccessKey,\n    {\n      host : this.host,\n      path : queue,\n      secure: true\n  });\n\n  var params = {};\n\n  if(opts && opts.MaxNumberOfMessages) {\n    params.MaxNumberOfMessages = opts.MaxNumberOfMessages;\n  }\n\n  if(opts && opts.VisibilityTimeout) {\n    params.VisibilityTimeout = opts.VisibilityTimeout;\n  }\n\n  if(opts && opts.attrs) {\n    for (var i = 1; i <= opts.attrs.length; i++) {\n      params[\"AttributeName.\" + i] = opts.attrs[i-1];\n    }\n  }\n\n  makeCall(aws, 'ReceiveMessage', params, function(err, result) {\n    if(err) {\n      fn(err, null);\n    } else {\n      var messages = null;\n      if(result.ReceiveMessageResult && result.ReceiveMessageResult.Message) {\n        if(result.ReceiveMessageResult.Message.length) {\n          messages = result.ReceiveMessageResult.Message;\n        } else {\n          messages = [result.ReceiveMessageResult.Message];\n        }\n      }\n      if(messages !== null) {\n        for(var i = 0; i < messages.length; i++) {\n          var message = messages[i];\n          if(message.Attribute && message.Attribute.length) {\n            for(var j = 0; j < message.Attribute.length; j++) {\n              message[message.Attribute[j].Name] = message.Attribute[j].Value;\n            }\n          } else {\n            if(message.Attribute) {\n              message[message.Attribute.Name] = message.Attribute.Value;\n            }\n          }\n        }\n      }\n      fn(err, messages);\n    }\n  });\n};","params":[{"type":"param","types":["string"],"name":"queue","description":"The full name of the queue to check for messages,"},{"type":"param","types":["object"],"name":"opts","description":"(optional) Options for retreiving messages."},{"type":"param","types":["Function"],"name":"fn","description":"The callback for when the message(s) are pulled from"}],"has_params":true,"tags":[{"type":"param","types":["string"],"name":"queue","description":"The full name of the queue to check for messages,"},{"type":"should","string":"look something like /12312301239/nameOfQueue."},{"type":"param","types":["object"],"name":"opts","description":"(optional) Options for retreiving messages."},{"type":"config","string":"{number} opts.MaxNumberOfMessages (optional) The max number of messages to pull"},{"type":"from","string":"queue."},{"type":"config","string":"{number} opts.VisibilityTimeout (optional) The length of time in seconds that a"},{"type":"message","string":"is not visible for receive requests after returned from this one."},{"type":"param","types":["Function"],"name":"fn","description":"The callback for when the message(s) are pulled from"},{"type":"queue,","string":"Callback function should take two parameters, error and result which"},{"type":"is","string":"an array of messages."},{"type":"see","local":"SQS.prototype.sendMessage","visibility":"SQS.prototype.sendMessage"},{"type":"memberOf","parent":"SQS"}],"module":false,"parent":"SQS","related":{"href":""},"has_related":true},{"id":"10-1339027939882","name":"deleteMessage","signiture":"SQS.prototype.deleteMessage()","type":"method","ctx":{"type":"method","constructor":"SQS","name":"deleteMessage","string":"SQS.prototype.deleteMessage()"},"description":{"full":"<p>Deletes a message from a queue.</p>","summary":"<p>Deletes a message from a queue.</p>","body":""},"full_description":"<p>Deletes a message from a queue.</p>","code":"SQS.prototype.deleteMessage = function(queue, messageReceipt, fn) {\n  var aws = awsjs.createSQSClient(\n    this.accessKeyId,\n    this.secretAccessKey,\n    {\n      host : this.host,\n      path : queue,\n      secure: true\n  });\n\n  var params = {\n    ReceiptHandle : messageReceipt\n  };\n\n  makeCall(aws, 'DeleteMessage', params, function(err, result) {\n    fn(err);\n  });\n};","params":[{"type":"param","types":["string"],"name":"queue","description":"The full name of the queue to delete the"},{"type":"param","types":["string"],"name":"messageReceipt","description":"The message receipt of the message to"},{"type":"param","types":["Function"],"name":"fn","description":"Callback function for deleting a message, callback will"}],"has_params":true,"tags":[{"type":"param","types":["string"],"name":"queue","description":"The full name of the queue to delete the"},{"type":"message","string":"from, name should be something like /1212412123/nameOfQueue."},{"type":"param","types":["string"],"name":"messageReceipt","description":"The message receipt of the message to"},{"type":"delete.","string":""},{"type":"param","types":["Function"],"name":"fn","description":"Callback function for deleting a message, callback will"},{"type":"include","string":"an err (or null)."},{"type":"see","local":"SQS.prototype.deleteMessage","visibility":"SQS.prototype.deleteMessage"},{"type":"memberOf","parent":"SQS"}],"module":false,"parent":"SQS","related":{"href":""},"has_related":true},{"id":"11-1339027939882","name":"deleteMessageBatch","signiture":"SQS.prototype.deleteMessageBatch()","type":"method","ctx":{"type":"method","constructor":"SQS","name":"deleteMessageBatch","string":"SQS.prototype.deleteMessageBatch()"},"description":{"full":"<p>Deletes a batch of messages from a queue.</p>","summary":"<p>Deletes a batch of messages from a queue.</p>","body":""},"full_description":"<p>Deletes a batch of messages from a queue.</p>","code":"SQS.prototype.deleteMessageBatch = function(queue, messageReceipts, fn) {\n  var aws = awsjs.createSQSClient(\n    this.accessKeyId,\n    this.secretAccessKey,\n    {\n      host : this.host,\n      path : queue,\n      secure: true\n  });\n\n  var params = {};\n\n  for(var i = 1; i <= messageReceipts.length; i++) {\n    params['DeleteMessageBatchRequestEntry.'  + i + '.Id'] = 'message_' + i;\n    params['DeleteMessageBatchRequestEntry.'  + i + '.ReceiptHandle'] = messageReceipts[i-1];\n  }\n\n  makeCall(aws, 'DeleteMessageBatch', params, function(err, result) {\n    fn(err);\n  });\n};","params":[{"type":"param","types":["string"],"name":"queue","description":"The full name of the queue to delete the"},{"type":"param","types":["Array"],"name":"messageReceipts","description":"An array of message receipts to delete from"},{"type":"param","types":["Function"],"name":"fn","description":"Callback function for deleting messages, callback will"}],"has_params":true,"tags":[{"type":"param","types":["string"],"name":"queue","description":"The full name of the queue to delete the"},{"type":"message","string":"from, name should be something like /1212412123/nameOfQueue."},{"type":"param","types":["Array"],"name":"messageReceipts","description":"An array of message receipts to delete from"},{"type":"the","string":"queue."},{"type":"param","types":["Function"],"name":"fn","description":"Callback function for deleting messages, callback will"},{"type":"include","string":"an err (or null)."},{"type":"see","local":"SQS.prototype.deleteMessageBatch","visibility":"SQS.prototype.deleteMessageBatch"},{"type":"memberOf","parent":"SQS"}],"module":false,"parent":"SQS","related":{"href":""},"has_related":true}]}]
+  </script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+
+  <script type="text/javascript" charset="utf-8">
+    // lunr.js version: 0.0.4
+    // (c) 2011 Oliver Nightingale
+    //
+    //  Released under MIT license.
+    //
+    var Lunr=function(c,f){var b=new Lunr.Index(c);f.call(b,b);return b};
+    Lunr.utils={uniq:function(c){if(!c)return[];return c.reduce(function(c,b){c.indexOf(b)===-1&&c.push(b);return c},[])},intersect:function(c){var f=[].slice.call(arguments,1);return this.uniq(c).filter(function(b){return f.every(function(a){return a.indexOf(b)>=0})})},detect:function(c,f,b){for(var a=c.length,g=null,d=0;d<a;d++)if(f.call(b,c[d],d,c)){g=c[d];break}return g},copy:function(c){return Object.keys(c).reduce(function(f,b){f[b]=c[b];return f},{})}};
+    Lunr.Trie=function(){var c=function(){this.children={};this.values=[]};c.prototype={childForKey:function(b){var a=this.children[b];a||(a=new c,this.children[b]=a);return a}};var f=function(){this.root=new c};f.prototype={get:function(b){var a=this;return this.keys(b).reduce(function(c,d){a.getNode(d).values.forEach(function(a){a=Lunr.utils.copy(a);if(b===d)a.exact=!0;c.push(a)});return c},[])},getNode:function(b){var a=function(b,d){if(!d.length)return b;return a(b.childForKey(d.charAt(0)),d.slice(1))};
+    return a(this.root,b)},keys:function(b){var a=[];b=b||"";var c=function(b,e){b.values.length&&a.push(e);Object.keys(b.children).forEach(function(a){c(b.children[a],e+a)})};c(this.getNode(b),b);return a},set:function(b,a){var c=function(b,e){if(!e.length)return b.values.push(a);c(b.childForKey(e.charAt(0)),e.slice(1))};return c(this.root,b)}};return f}();Lunr.Index=function(c){this.name=c;this.refName="id";this.fields={};this.trie=new Lunr.Trie};
+    Lunr.Index.prototype={add:function(c){(new Lunr.Document(c,this.refName,this.fields)).words().forEach(function(c){this.trie.set(c.id,c.docs[0])},this)},field:function(c,f){this.fields[c]=f||{multiplier:1}},ref:function(c){this.refName=c},search:function(c){if(!c)return[];c=c.split(" ").map(function(c){c=new Lunr.Word(c);if(!c.isStopWord())return c.toString()}).filter(function(c){return c}).map(function(c){return this.trie.get(c).sort(function(b,a){if(b.exact&&a.exact===void 0)return-1;if(a.exact&&
+    b.exact===void 0)return 1;if(b.score<a.score)return 1;if(b.score>a.score)return-1;return 0}).map(function(b){return b.documentId})},this);return Lunr.utils.intersect.apply(Lunr.utils,c)}};Lunr.Document=function(c,f,b){this.original=c;this.fields=b;this.ref=c[f]};
+    Lunr.Document.prototype={asJSON:function(){return{id:this.ref,words:this.words().map(function(c){return c.id}),original:this.original}},words:function(){var c=this,f={};Object.keys(this.fields).forEach(function(b){c.original[b].split(/\b/g).filter(function(a){return!!a.match(/\w/)}).map(function(a){a=new Lunr.Word(a);if(!a.isStopWord())return a.toString()}).filter(function(a){return a}).forEach(function(a){f[a]||(f[a]={score:0,ref:c.ref});f[a].score+=c.fields[b].multiplier})});return Object.keys(f).map(function(b){return{id:b,
+    docs:[{score:f[b].score,documentId:c.ref}]}})}};Lunr.Word=function(c){this.raw=c;this.out=this.raw.replace(/^\W+/,"").replace(/\W+$/,"").toLowerCase()};Lunr.Word.stopWords=["the","of","to","and","a","in","is","it","you","that","this"];
+    Lunr.Word.prototype={isStopWord:function(){return Lunr.Word.stopWords.indexOf(this.raw.toLowerCase())!==-1},toString:function(){if(!this.isStopWord())return this.stem(),this.out},stem:function(){var c={ational:"ate",tional:"tion",enci:"ence",anci:"ance",izer:"ize",bli:"ble",alli:"al",entli:"ent",eli:"e",ousli:"ous",ization:"ize",ation:"ate",ator:"ate",alism:"al",iveness:"ive",fulness:"ful",ousness:"ous",aliti:"al",iviti:"ive",biliti:"ble",logi:"log"},f={icate:"ic",ative:"",alize:"al",iciti:"ic",ical:"ic",
+    ful:"",ness:""};return function(){var b,a,g,d=g=this.out;if(g.length<3)return g;var e,h;g=g.substr(0,1);g=="y"&&(d=g.toUpperCase()+d.substr(1));e=/^(.+?)(ss|i)es$/;a=/^(.+?)([^s])s$/;e.test(d)?d=d.replace(e,"$1$2"):a.test(d)&&(d=d.replace(a,"$1$2"));e=/^(.+?)eed$/;a=/^(.+?)(ed|ing)$/;e.test(d)?(a=e.exec(d),e=/^([^aeiou][^aeiouy]*)?[aeiouy][aeiou]*[^aeiou][^aeiouy]*/,e.test(a[1])&&(e=/.$/,d=d.replace(e,""))):a.test(d)&&(a=a.exec(d),b=a[1],a=/^([^aeiou][^aeiouy]*)?[aeiouy]/,a.test(b)&&(d=b,a=/(at|bl|iz)$/,
+    h=/([^aeiouylsz])\1$/,b=/^[^aeiou][^aeiouy]*[aeiouy][^aeiouwxy]$/,a.test(d)?d+="e":h.test(d)?(e=/.$/,d=d.replace(e,"")):b.test(d)&&(d+="e")));e=/^(.+?)y$/;e.test(d)&&(a=e.exec(d),b=a[1],e=/^([^aeiou][^aeiouy]*)?[aeiouy]/,e.test(b)&&(d=b+"i"));e=/^(.+?)(ational|tional|enci|anci|izer|bli|alli|entli|eli|ousli|ization|ation|ator|alism|iveness|fulness|ousness|aliti|iviti|biliti|logi)$/;e.test(d)&&(a=e.exec(d),b=a[1],a=a[2],e=/^([^aeiou][^aeiouy]*)?[aeiouy][aeiou]*[^aeiou][^aeiouy]*/,e.test(b)&&(d=b+c[a]));
+    e=/^(.+?)(icate|ative|alize|iciti|ical|ful|ness)$/;e.test(d)&&(a=e.exec(d),b=a[1],a=a[2],e=/^([^aeiou][^aeiouy]*)?[aeiouy][aeiou]*[^aeiou][^aeiouy]*/,e.test(b)&&(d=b+f[a]));e=/^(.+?)(al|ance|ence|er|ic|able|ible|ant|ement|ment|ent|ou|ism|ate|iti|ous|ive|ize)$/;a=/^(.+?)(s|t)(ion)$/;e.test(d)?(a=e.exec(d),b=a[1],e=/^([^aeiou][^aeiouy]*)?[aeiouy][aeiou]*[^aeiou][^aeiouy]*[aeiouy][aeiou]*[^aeiou][^aeiouy]*/,e.test(b)&&(d=b)):a.test(d)&&(a=a.exec(d),b=a[1]+a[2],a=/^([^aeiou][^aeiouy]*)?[aeiouy][aeiou]*[^aeiou][^aeiouy]*[aeiouy][aeiou]*[^aeiou][^aeiouy]*/,
+    a.test(b)&&(d=b));e=/^(.+?)e$/;if(e.test(d)&&(a=e.exec(d),b=a[1],e=/^([^aeiou][^aeiouy]*)?[aeiouy][aeiou]*[^aeiou][^aeiouy]*[aeiouy][aeiou]*[^aeiou][^aeiouy]*/,a=/^([^aeiou][^aeiouy]*)?[aeiouy][aeiou]*[^aeiou][^aeiouy]*([aeiouy][aeiou]*)?$/,h=/^[^aeiou][^aeiouy]*[aeiouy][^aeiouwxy]$/,e.test(b)||a.test(b)&&!h.test(b)))d=b;e=/ll$/;a=/^([^aeiou][^aeiouy]*)?[aeiouy][aeiou]*[^aeiou][^aeiouy]*[aeiouy][aeiou]*[^aeiou][^aeiouy]*/;e.test(d)&&a.test(d)&&(e=/.$/,d=d.replace(e,""));g=="y"&&(d=g.toLowerCase()+
+    d.substr(1));this.out=d}}()};
+  </script>
+
+  <script type="text/javascript" charset="utf-8">
+    var idx = Lunr('methods', function () {
+      this.ref('id')
+      this.field('name', { multiplier: 10 })
+      this.field('parent', { multiplier: 5 })
+      this.field('full_description')
+    })
+
+    var methods = raw.reduce(function (memo, module) {
+      return memo.concat(module.methods)
+    }, [])
+
+    methods.forEach(function (method) {
+      idx.add(method)
+    })
+
+    $(document).ready(function () {
+
+      var search = function (term) {
+        return idx.search(term).map(function (id) {
+          return methods.filter(function (method) {
+            return method.id === id
+          })[0]
+        })
+      }
+
+      var searchResults = $('#search-results')
+
+      $('#search-input').keyup(function () {
+        var query = $(this).val(),
+            results = search(query)
+
+        if (!results.length) {
+          searchResults.empty()
+          return
+        };
+
+        var resultsList = results.reduce(function (ul, result) {
+          var li = $('<li>').append($('<a>', {
+            href: '#' + result.name,
+            text: result.name
+          }))
+
+          ul.append(li)
+
+          return ul
+        }, $('<ul>'))
+
+        searchResults.html(resultsList)
+      })
+    })
+  </script>
+
+  <style type="text/css" media="screen">
+    body {
+  font-family: 'Helvetica Neue';
+  color: #333;
+}
+
+a {
+  color: #0f4bf0;
+}
+
+header h1 {
+  border-top: 4px solid #333;
+  font-size: 2.6em;
+}
+
+header .version {
+  font-size: 0.6em;
+}
+
+.main > header {
+  margin-bottom: 40px;
+}
+
+article {
+  margin-bottom: 10px;
+  padding-bottom: 30px;
+}
+
+article header h2 {
+  border-top: 3px solid #333;
+  font-size: 2em;
+  padding-top: 5px;
+}
+
+article > section {
+  margin-bottom: 30px;
+}
+
+article section h3 {
+  font-size: 1em;
+}
+
+article section header h3 {
+  padding-top: 2px;
+  font-size: 1.2em;
+  margin-bottom: 5px;
+  border-top: 2px solid #333;
+}
+
+article section header h4 {
+  font-size: 0.9em;
+  font-family: courier;
+  margin: 2px 0 5px 0;
+}
+
+@-webkit-keyframes highlight {
+  from {
+    background-color: #Ffff66;
+  }
+
+  to {
+    background-color: white;
+  }
+}
+
+section.method:target {
+  -webkit-animation-duration: 1s;
+  -webkit-animation-name: highlight;
+}
+
+section header .type, section header .related {
+  margin-top: 0px;
+  font-size: 0.8em;
+}
+
+section.params h4, section.source h4 {
+  margin-top: 5px;
+  margin-bottom: 2px;
+  font-size: 0.9em;
+}
+
+section.params ul {
+  margin-top: 2px;
+}
+
+a.show-source {
+  font-size: 0.8em;
+}
+
+.wrap {
+  width: 960px;
+  margin: 0 auto;
+}
+
+.main {
+  width: 760px;
+  float: left;
+}
+
+.search {
+  margin-top: 10px;
+  float: right;
+}
+
+#search-input {
+  width: 200px;
+}
+
+#search-results {
+  position: relative;
+}
+
+#search-results ul {
+  width: 200px;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  background-color: white;
+  border: 1px solid #ccc;
+  list-style: none;
+  padding: 0;
+  margin-top: 0;
+  font-size: 0.9em;
+}
+
+#search-results li {
+  padding: 5px;
+}
+
+#search-results li:hover {
+  background-color: #eee;
+  cursor: pointer;
+}
+
+#search-results li a {
+  text-decoration: none;
+  width: 200px;
+  display: block;
+}
+
+p {
+  line-height: 1.4em;
+}
+
+nav {
+  padding-top: 15px;
+  float: left;
+  width: 165px;
+  margin-right: 30px;
+  text-align: right;
+  font-size: 0.8em;
+}
+
+nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav ul h3 {
+  margin-bottom: 5px;
+  border-top: 2px solid #CCC;
+  padding-top: 2px;
+}
+
+nav ul ul li {
+  padding: 2px 0;
+}
+
+pre {
+  background-color: rgba(0,0,0,0.1);
+  padding: 8px;
+}
+
+code .keyword, code .special {
+  font-weight: bold;
+  color: black;
+}
+
+code .string, code .regexp {
+  color: green
+}
+
+code .class { 
+  color: blue
+}
+
+code .number {
+  color: red
+}
+
+code .comment {
+  color: grey;
+  font-style: italic;
+}
+  </style>
+</head>
+<body>
+  <div class='wrap'>
+
+
+    <nav>
+      <ul>
+        
+          <li>
+            <a href='#SQS'>
+              <h3>SQS</h3>
+            </a>
+
+            <ul>
+              
+                <li><a href='#createQueue'>createQueue</a></li>
+              
+                <li><a href='#deleteQueue'>deleteQueue</a></li>
+              
+                <li><a href='#getQueueUrl'>getQueueUrl</a></li>
+              
+                <li><a href='#listQueues'>listQueues</a></li>
+              
+                <li><a href='#sendMessage'>sendMessage</a></li>
+              
+                <li><a href='#sendMessageBatch'>sendMessageBatch</a></li>
+              
+                <li><a href='#receiveMessage'>receiveMessage</a></li>
+              
+                <li><a href='#deleteMessage'>deleteMessage</a></li>
+              
+                <li><a href='#deleteMessageBatch'>deleteMessageBatch</a></li>
+              
+            </ul>
+          </li>
+        
+      </ul>
+    </nav>
+
+    <div class='main'>
+      <header>
+        <div class='search'>
+          <input type="search" id="search-input" placeholder="Search"></input>
+          <div id="search-results"></div>
+        </div>
+        <h1>Simple Queue Service <span class='version'>0.0.1</span></h1>
+      </header>
+
+      
+        <article id='SQS'>
+          <header>
+            <h2>SQS</h2>
+          </header>
+
+          <section>
+            <p>Simple Queue Service, used to communicate and run commands against Amazon's SQS.</p>
+          </section>
+
+          
+            <section class='method' id='createQueue'>
+              <header>
+                <h3>createQueue</h3>
+                <h4>SQS.prototype.createQueue()</h4>
+                <p class='type'>method</p>
+                
+                  <p class='related'>See: <a href='#'></a></p>
+                
+              </header>
+
+              <section class='params'>
+                
+                  <h4>Params</h4>
+                
+                <ul>
+                  
+                    <li>name - The name of the queue</li>
+                  
+                    <li>attrs - (optional) Attributes for the queue.</li>
+                  
+                    <li>attrs.VisibilityTimeout - (optional) The length of time (in seconds) that a</li>
+                  
+                    <li>(optional) - The formal description of the permissions for a resource.</li>
+                  
+                    <li>(optional) - The limit of how many bytes a message can</li>
+                  
+                    <li>The - number of seconds Amazon SQS retains a</li>
+                  
+                    <li>(optional) - The time in seconds that the delivery of all messages</li>
+                  
+                    <li>fn - Callback function for when queue is created, Callback</li>
+                  
+                </ul>
+              </section>
+
+              
+
+              <section>
+                <p>Create a SQS queue</p>
+              </section>
+
+              <section class='source'>
+                <h4>Source</h4>
+                <pre><code>SQS.prototype.createQueue = function(name, attrs, fn) {
+  if(!fn) {
+    fn = attrs;
+    attrs = null;
+  }
+
+  // Check name to make sure meets constraints
+  if(name.length &gt; 80 || name.search(&quot; &quot;) != -1) {
+    fn('Name is constrained to maximum 80 characters; ' +
+       'alphanumeric characters, hyphens (-), and underscores (_).', null);
+    return;
+  }
+
+  var params = {
+    QueueName : name
+  };
+
+  if(attrs) {
+    var i = 1;
+    for(var prop in attrs) {
+      params[&quot;Attribute.&quot; + i + &quot;.Name&quot;] = prop;
+      params[&quot;Attribute.&quot; + i + &quot;.Value&quot;] = attrs[prop];
+      i++;
+    }
+  }
+
+  var host = this.host;
+  var aws = awsjs.createSQSClient(
+    this.accessKeyId,
+    this.secretAccessKey,
+    {
+      host : this.host,
+      secure: true,
+      version: '2011-10-01'
+  });
+
+  makeCall(aws, 'CreateQueue', params, function(err, result) {
+    var url = '';
+
+    if(result &amp;&amp; result.CreateQueueResult) {
+      url = result.CreateQueueResult.QueueUrl;
+    }
+
+    var name = url.replace('https://' + host, '');
+
+    fn(err, name);
+  });
+};</code></pre>
+              </section>
+              
+            </section>
+          
+            <section class='method' id='deleteQueue'>
+              <header>
+                <h3>deleteQueue</h3>
+                <h4>SQS.prototype.deleteQueue()</h4>
+                <p class='type'>method</p>
+                
+                  <p class='related'>See: <a href='#'></a></p>
+                
+              </header>
+
+              <section class='params'>
+                
+                  <h4>Params</h4>
+                
+                <ul>
+                  
+                    <li>name - The full name for the queue, should be something like</li>
+                  
+                    <li>fn - Callback function for when queue is created</li>
+                  
+                </ul>
+              </section>
+
+              
+
+              <section>
+                <p>Deletes a SQS queue.</p>
+              </section>
+
+              <section class='source'>
+                <h4>Source</h4>
+                <pre><code>SQS.prototype.deleteQueue = function(name, fn) {
+  var aws = awsjs.createSQSClient(
+    this.accessKeyId,
+    this.secretAccessKey,
+    {
+      host : this.host,
+      path : name,
+      secure: true
+  });
+
+  makeCall(aws, 'DeleteQueue', {}, function(err, result) {
+    fn(err);
+  });
+};</code></pre>
+              </section>
+              
+            </section>
+          
+            <section class='method' id='getQueueUrl'>
+              <header>
+                <h3>getQueueUrl</h3>
+                <h4>SQS.prototype.getQueueUrl()</h4>
+                <p class='type'>method</p>
+                
+                  <p class='related'>See: <a href='#'></a></p>
+                
+              </header>
+
+              <section class='params'>
+                
+                  <h4>Params</h4>
+                
+                <ul>
+                  
+                    <li>name - The full name of the queue, should be something like</li>
+                  
+                    <li>fn - The callback for when the url is retrieved, Callback</li>
+                  
+                </ul>
+              </section>
+
+              
+
+              <section>
+                <p>Returns the full qualified url for a queue.</p>
+              </section>
+
+              <section class='source'>
+                <h4>Source</h4>
+                <pre><code>SQS.prototype.getQueueUrl = function(name, fn) {
+  var aws = awsjs.createSQSClient(
+    this.accessKeyId,
+    this.secretAccessKey,
+    {
+      host : this.host,
+      secure: true,
+      version: '2011-10-01'
+  });
+  var params = {
+    QueueName : name
+  };
+  makeCall(aws, 'GetQueueUrl', params, function(err, result) {
+    var url = '';
+    if(result &amp;&amp; result.GetQueueUrlResult) {
+      url = result.GetQueueUrlResult.QueueUrl;
+    }
+    fn(err, url);
+  });
+};</code></pre>
+              </section>
+              
+            </section>
+          
+            <section class='method' id='listQueues'>
+              <header>
+                <h3>listQueues</h3>
+                <h4>SQS.prototype.listQueues()</h4>
+                <p class='type'>method</p>
+                
+                  <p class='related'>See: <a href='#'></a></p>
+                
+              </header>
+
+              <section class='params'>
+                
+                  <h4>Params</h4>
+                
+                <ul>
+                  
+                    <li>prefix - (optional) Queue name prefix to filter the list of queues to</li>
+                  
+                    <li>fn - The callback for when the queue list is retrieved,</li>
+                  
+                </ul>
+              </section>
+
+              
+
+              <section>
+                <p>Returns a list of available queues.</p>
+              </section>
+
+              <section class='source'>
+                <h4>Source</h4>
+                <pre><code>SQS.prototype.listQueues = function(prefix, fn) {
+  if(!fn) {
+    fn = prefix;
+    prefix = null;
+  }
+
+  var host = this.host;
+
+  var aws = awsjs.createSQSClient(
+    this.accessKeyId,
+    this.secretAccessKey,
+    {
+      host : this.host,
+      secure: true,
+      version: '2011-10-01'
+  });
+
+  var params = {};
+  if(prefix) {
+    params.QueueNamePrefix = prefix;
+  }
+
+  makeCall(aws, 'ListQueues', params, function(err, result) {
+    var urls = [];
+    if(result &amp;&amp; result.ListQueuesResult) {
+      urls = result.ListQueuesResult.QueueUrl;
+
+      if(typeof urls === 'string') {
+        urls = [urls];
+      }
+    }
+    for(var i = 0; i &lt; urls.length; i++) {
+      urls[i] = urls[i].replace('https://' + host, '');
+    }
+    fn(err, urls);
+  });
+};</code></pre>
+              </section>
+              
+            </section>
+          
+            <section class='method' id='sendMessage'>
+              <header>
+                <h3>sendMessage</h3>
+                <h4>SQS.prototype.sendMessage()</h4>
+                <p class='type'>method</p>
+                
+                  <p class='related'>See: <a href='#'></a></p>
+                
+              </header>
+
+              <section class='params'>
+                
+                  <h4>Params</h4>
+                
+                <ul>
+                  
+                    <li>queue - The full name of the queue. Should be something like</li>
+                  
+                    <li>message - The message to add to the queue.</li>
+                  
+                    <li>delay - (optional) The delay to wait before the message is actually</li>
+                  
+                    <li>fn - The callback for when the message is add to queue,</li>
+                  
+                </ul>
+              </section>
+
+              
+
+              <section>
+                <p>Sends a message to a queue.</p>
+              </section>
+
+              <section class='source'>
+                <h4>Source</h4>
+                <pre><code>SQS.prototype.sendMessage = function(queue, message, delay, fn) {
+  if(!fn) {
+    fn = delay;
+    delay = null;
+  }
+
+  var aws = awsjs.createSQSClient(
+    this.accessKeyId,
+    this.secretAccessKey,
+    {
+      host : this.host,
+      path : queue,
+      secure: true
+  });
+
+  var params = {
+    MessageBody : message
+  };
+
+  if(delay) {
+    params.DelaySeconds = delay;
+  }
+
+  makeCall(aws, 'SendMessage', params, function(err, result) {
+    if(err) {
+      fn(err, null);
+    } else {
+      var ret = null;
+      if(result.SendMessageResult) {
+        ret = result.SendMessageResult;
+      }
+      fn(err, ret);
+    }
+  });
+};</code></pre>
+              </section>
+              
+            </section>
+          
+            <section class='method' id='sendMessageBatch'>
+              <header>
+                <h3>sendMessageBatch</h3>
+                <h4>SQS.prototype.sendMessageBatch()</h4>
+                <p class='type'>method</p>
+                
+                  <p class='related'>See: <a href='#'></a></p>
+                
+              </header>
+
+              <section class='params'>
+                
+                  <h4>Params</h4>
+                
+                <ul>
+                  
+                    <li>queue - The full name of the queue. Should be something like</li>
+                  
+                    <li>messages - An array of objects, each object should have</li>
+                  
+                    <li>fn - The callback for when the message is add to queue,</li>
+                  
+                </ul>
+              </section>
+
+              
+
+              <section>
+                <p>Sends a batch of messages to a queue.</p>
+              </section>
+
+              <section class='source'>
+                <h4>Source</h4>
+                <pre><code>SQS.prototype.sendMessageBatch = function(queue, messages, fn) {
+  var aws = awsjs.createSQSClient(
+    this.accessKeyId,
+    this.secretAccessKey,
+    {
+      host : this.host,
+      path : queue,
+      secure: true
+  });
+
+  var params = {};
+
+  for (var i = 0; i &lt; messages.length; i++) {
+    var index = i + 1;
+    params['SendMessageBatchRequestEntry.' + index + '.Id'] = i;
+    params['SendMessageBatchRequestEntry.' + index + '.MessageBody'] = messages[i].message;
+    if(messages[i].delay) {
+      params['SendMessageBatchRequestEntry.' + index + '.DelaySeconds'] = messages[i].delay;
+    }
+  }
+
+  makeCall(aws, 'SendMessageBatch', params, function(err, result) {
+    if(err) {
+      fn(err, null);
+    } else {
+      var ret = null;
+      if(result.SendMessageBatchResult &amp;&amp;
+         result.SendMessageBatchResult.SendMessageBatchResultEntry)
+      {
+        ret = result.SendMessageBatchResult.SendMessageBatchResultEntry;
+      }
+      fn(err, ret);
+    }
+  });
+};</code></pre>
+              </section>
+              
+            </section>
+          
+            <section class='method' id='receiveMessage'>
+              <header>
+                <h3>receiveMessage</h3>
+                <h4>SQS.prototype.receiveMessage()</h4>
+                <p class='type'>method</p>
+                
+                  <p class='related'>See: <a href='#'></a></p>
+                
+              </header>
+
+              <section class='params'>
+                
+                  <h4>Params</h4>
+                
+                <ul>
+                  
+                    <li>queue - The full name of the queue to check for messages,</li>
+                  
+                    <li>opts - (optional) Options for retreiving messages.</li>
+                  
+                    <li>fn - The callback for when the message(s) are pulled from</li>
+                  
+                </ul>
+              </section>
+
+              
+
+              <section>
+                <p>Retrieves any messages from a queue if any are available. If none are available then an empty array is returned as the result.</p>
+              </section>
+
+              <section class='source'>
+                <h4>Source</h4>
+                <pre><code>SQS.prototype.receiveMessage = function(queue, opts, fn) {
+  if(!fn) {
+    fn = opts;
+    opts = null;
+  }
+
+  var aws = awsjs.createSQSClient(
+    this.accessKeyId,
+    this.secretAccessKey,
+    {
+      host : this.host,
+      path : queue,
+      secure: true
+  });
+
+  var params = {};
+
+  if(opts &amp;&amp; opts.MaxNumberOfMessages) {
+    params.MaxNumberOfMessages = opts.MaxNumberOfMessages;
+  }
+
+  if(opts &amp;&amp; opts.VisibilityTimeout) {
+    params.VisibilityTimeout = opts.VisibilityTimeout;
+  }
+
+  if(opts &amp;&amp; opts.attrs) {
+    for (var i = 1; i &lt;= opts.attrs.length; i++) {
+      params[&quot;AttributeName.&quot; + i] = opts.attrs[i-1];
+    }
+  }
+
+  makeCall(aws, 'ReceiveMessage', params, function(err, result) {
+    if(err) {
+      fn(err, null);
+    } else {
+      var messages = null;
+      if(result.ReceiveMessageResult &amp;&amp; result.ReceiveMessageResult.Message) {
+        if(result.ReceiveMessageResult.Message.length) {
+          messages = result.ReceiveMessageResult.Message;
+        } else {
+          messages = [result.ReceiveMessageResult.Message];
+        }
+      }
+      if(messages !== null) {
+        for(var i = 0; i &lt; messages.length; i++) {
+          var message = messages[i];
+          if(message.Attribute &amp;&amp; message.Attribute.length) {
+            for(var j = 0; j &lt; message.Attribute.length; j++) {
+              message[message.Attribute[j].Name] = message.Attribute[j].Value;
+            }
+          } else {
+            if(message.Attribute) {
+              message[message.Attribute.Name] = message.Attribute.Value;
+            }
+          }
+        }
+      }
+      fn(err, messages);
+    }
+  });
+};</code></pre>
+              </section>
+              
+            </section>
+          
+            <section class='method' id='deleteMessage'>
+              <header>
+                <h3>deleteMessage</h3>
+                <h4>SQS.prototype.deleteMessage()</h4>
+                <p class='type'>method</p>
+                
+                  <p class='related'>See: <a href='#'></a></p>
+                
+              </header>
+
+              <section class='params'>
+                
+                  <h4>Params</h4>
+                
+                <ul>
+                  
+                    <li>queue - The full name of the queue to delete the</li>
+                  
+                    <li>messageReceipt - The message receipt of the message to</li>
+                  
+                    <li>fn - Callback function for deleting a message, callback will</li>
+                  
+                </ul>
+              </section>
+
+              
+
+              <section>
+                <p>Deletes a message from a queue.</p>
+              </section>
+
+              <section class='source'>
+                <h4>Source</h4>
+                <pre><code>SQS.prototype.deleteMessage = function(queue, messageReceipt, fn) {
+  var aws = awsjs.createSQSClient(
+    this.accessKeyId,
+    this.secretAccessKey,
+    {
+      host : this.host,
+      path : queue,
+      secure: true
+  });
+
+  var params = {
+    ReceiptHandle : messageReceipt
+  };
+
+  makeCall(aws, 'DeleteMessage', params, function(err, result) {
+    fn(err);
+  });
+};</code></pre>
+              </section>
+              
+            </section>
+          
+            <section class='method' id='deleteMessageBatch'>
+              <header>
+                <h3>deleteMessageBatch</h3>
+                <h4>SQS.prototype.deleteMessageBatch()</h4>
+                <p class='type'>method</p>
+                
+                  <p class='related'>See: <a href='#'></a></p>
+                
+              </header>
+
+              <section class='params'>
+                
+                  <h4>Params</h4>
+                
+                <ul>
+                  
+                    <li>queue - The full name of the queue to delete the</li>
+                  
+                    <li>messageReceipts - An array of message receipts to delete from</li>
+                  
+                    <li>fn - Callback function for deleting messages, callback will</li>
+                  
+                </ul>
+              </section>
+
+              
+
+              <section>
+                <p>Deletes a batch of messages from a queue.</p>
+              </section>
+
+              <section class='source'>
+                <h4>Source</h4>
+                <pre><code>SQS.prototype.deleteMessageBatch = function(queue, messageReceipts, fn) {
+  var aws = awsjs.createSQSClient(
+    this.accessKeyId,
+    this.secretAccessKey,
+    {
+      host : this.host,
+      path : queue,
+      secure: true
+  });
+
+  var params = {};
+
+  for(var i = 1; i &lt;= messageReceipts.length; i++) {
+    params['DeleteMessageBatchRequestEntry.'  + i + '.Id'] = 'message_' + i;
+    params['DeleteMessageBatchRequestEntry.'  + i + '.ReceiptHandle'] = messageReceipts[i-1];
+  }
+
+  makeCall(aws, 'DeleteMessageBatch', params, function(err, result) {
+    fn(err);
+  });
+};</code></pre>
+              </section>
+              
+            </section>
+          
+        </article>
+      
+    </div>
+  </div>
+  <script>
+    (function (hijs) {
+    //
+    // hijs - JavaScript Syntax Highlighter
+    //
+    // Copyright (c) 2010 Alexis Sellier
+    //
+
+    // All elements which match this will be syntax highlighted.
+    var selector = hijs || 'code';
+
+    var keywords = ('var function if else for while break switch case do new null in with void '
+                   +'continue delete return this true false throw catch typeof with instanceof').split(' '),
+        special  = ('eval window document undefined NaN Infinity parseInt parseFloat '
+                   +'encodeURI decodeURI encodeURIComponent decodeURIComponent').split(' ');
+
+    // Syntax definition
+    // The key becomes the class name of the <span>
+    // around the matched block of code.
+    var syntax = [
+      ['comment', /(\/\*(?:[^*\n]|\*+[^\/*])*\*+\/)/g],
+      ['comment', /(\/\/[^\n]*)/g],
+      ['string' , /("(?:(?!")[^\\\n]|\\.)*"|'(?:(?!')[^\\\n]|\\.)*')/g],
+      ['regexp' , /(\/.+\/[mgi]*)(?!\s*\w)/g],
+      ['class'  , /\b([A-Z][a-zA-Z]+)\b/g],
+      ['number' , /\b([0-9]+(?:\.[0-9]+)?)\b/g],
+      ['keyword', new(RegExp)('\\b(' + keywords.join('|') + ')\\b', 'g')],
+      ['special', new(RegExp)('\\b(' + special.join('|') + ')\\b', 'g')]
+    ];
+    var nodes, table = {};
+
+    if (/^[a-z]+$/.test(selector)) {
+        nodes = document.getElementsByTagName(selector);
+    } else if (/^\.[\w-]+$/.test(selector)) {
+        nodes = document.getElementsByClassName(selector.slice(1));
+    } else if (document.querySelectorAll) {
+        nodes = document.querySelectorAll(selector);
+    } else {
+        nodes = [];
+    }
+
+    for (var i = 0, children; i < nodes.length; i++) {
+        children = nodes[i].childNodes;
+
+        for (var j = 0, str; j < children.length; j++) {
+            code = children[j];
+
+            if (code.length >= 0) { // It's a text node
+                // Don't highlight command-line snippets
+                if (! /^\$/.test(code.nodeValue.trim())) {
+                    syntax.forEach(function (s) {
+                        var k = s[0], v = s[1];
+                        code.nodeValue = code.nodeValue.replace(v, function (_, m) {
+                            return '\u00ab' + encode(k) + '\u00b7'
+                                            + encode(m) +
+                                   '\u00b7' + encode(k) + '\u00bb';
+                        });
+                    });
+                }
+            }
+        }
+    }
+    for (var i = 0; i < nodes.length; i++) {
+        nodes[i].innerHTML =
+            nodes[i].innerHTML.replace(/\u00ab(.+?)\u00b7(.+?)\u00b7\1\u00bb/g, function (_, name, value) {
+                value = value.replace(/\u00ab[^\u00b7]+\u00b7/g, '').replace(/\u00b7[^\u00bb]+\u00bb/g, '');
+                return '<span class="' + decode(name) + '">' + escape(decode(value)) + '</span>';
+        });
+    }
+
+    function escape(str) {
+        return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // Encode ASCII characters to, and from Braille
+    function encode (str, encoded) {
+        table[encoded = str.split('').map(function (s) {
+            if (s.charCodeAt(0) > 127) { return s }
+            return String.fromCharCode(s.charCodeAt(0) + 0x2800);
+        }).join('')] = str;
+        return encoded;
+    }
+    function decode (str) {
+        if (str in table) {
+            return table[str];
+        } else {
+            return str.trim().split('').map(function (s) {
+                if (s.charCodeAt(0) - 0x2800 > 127) { return s }
+                return String.fromCharCode(s.charCodeAt(0) - 0x2800);
+            }).join('');
+        }
+    }
+
+    })(window.hijs);
+  </script>
+</body>
