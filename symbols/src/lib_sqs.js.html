@@ -1,0 +1,481 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf8"> <style>
+	.KEYW {color: #933;}
+	.COMM {color: #bbb; font-style: italic;}
+	.NUMB {color: #393;}
+	.STRN {color: #393;}
+	.REGX {color: #339;}
+	.line {border-right: 1px dotted #666; color: #666; font-style: normal;}
+	</style></head><body><pre><span class='line'>  1</span> <span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">awsjs</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">require</span><span class="PUNC">(</span><span class="STRN">'aws-lib'</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>  2</span> 
+<span class='line'>  3</span> </span><span class="COMM">/*
+<span class='line'>  4</span> AddPermission
+<span class='line'>  5</span> ChangeMessageVisibility
+<span class='line'>  6</span> ChangeMessageVisibilityBatch
+<span class='line'>  7</span> CreateQueue - createQueue(name, [attrs], fn)
+<span class='line'>  8</span> DeleteMessage - deleteMessage(queue, messageReceipt, fn)
+<span class='line'>  9</span> DeleteMessageBatch - deleteMessageBatch(queue, messageReceipts, fn)
+<span class='line'> 10</span> DeleteQueue - deleteQueue(name, fn)
+<span class='line'> 11</span> GetQueueAttributes
+<span class='line'> 12</span> GetQueueUrl - getQueueUrl(name, fn)
+<span class='line'> 13</span> ListQueues - listQueues([prefix], fn)
+<span class='line'> 14</span> ReceiveMessage - receiveMessage(queue, [opts], fn)
+<span class='line'> 15</span> RemovePermission
+<span class='line'> 16</span> SendMessage - sendMessage(queue, message, [delay], fn)
+<span class='line'> 17</span> SendMessageBatch - sendMessageBatch(queue, messages)
+<span class='line'> 18</span> SetQueueAttributes
+<span class='line'> 19</span> */</span><span class="WHIT">
+<span class='line'> 20</span> 
+<span class='line'> 21</span> </span><span class="COMM">/**
+<span class='line'> 22</span>  * Convience function for making a request to the SQS service.
+<span class='line'> 23</span>  * @param  {object}   aws    AWS service from aws-lib.
+<span class='line'> 24</span>  * @param  {string}   action The AWS action to invoke on the service.
+<span class='line'> 25</span>  * @param  {object}   params The parameters to pass the action.
+<span class='line'> 26</span>  * @param  {Function} fn Callback function from the service call, will include
+<span class='line'> 27</span>  * an error (or null) and the result of the service call.
+<span class='line'> 28</span>  * @private
+<span class='line'> 29</span>  */</span><span class="WHIT">
+<span class='line'> 30</span> </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">makeCall</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">aws</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">action</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">params</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">fn</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 31</span> </span><span class="WHIT">  </span><span class="NAME">aws.call</span><span class="PUNC">(</span><span class="NAME">action</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">params</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">result</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 32</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">err</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">result</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">result.Error</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">result.Error.Message</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 33</span> </span><span class="WHIT">      </span><span class="NAME">err</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">result.Error.Message</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 34</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'> 35</span> </span><span class="WHIT">    </span><span class="NAME">fn</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">result</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 36</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 37</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 38</span> 
+<span class='line'> 39</span> </span><span class="COMM">/**
+<span class='line'> 40</span>  * Simple Queue Service, used to communicate and run commands against Amazon's
+<span class='line'> 41</span>  * SQS.
+<span class='line'> 42</span>  * @example
+<span class='line'> 43</span>  *   var sqs = new SQS('awsId', 'awsSecret');
+<span class='line'> 44</span>  * @param {string} accessKeyId key id
+<span class='line'> 45</span>  * @param {string} secretAccessKey secret access key
+<span class='line'> 46</span>  * @param {object} [opts] optional parameters
+<span class='line'> 47</span>  * @config {string} [opts.region] the aws region, must be one of these:
+<span class='line'> 48</span>  *   us-east-1, us-west-1, us-west-2, eu-west-1, ap-southeast-1, ap-northeast-1
+<span class='line'> 49</span>  * @class
+<span class='line'> 50</span>  */</span><span class="WHIT">
+<span class='line'> 51</span> </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">SQS</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">accessKeyId</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">secretAccessKey</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">opts</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 52</span> 
+<span class='line'> 53</span> </span><span class="WHIT">  </span><span class="COMM">// optional parameters</span><span class="WHIT">
+<span class='line'> 54</span> </span><span class="WHIT">  </span><span class="NAME">opts</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">opts</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 55</span> </span><span class="WHIT">  </span><span class="NAME">this.accessKeyId</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">accessKeyId</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 56</span> </span><span class="WHIT">  </span><span class="NAME">this.secretAccessKey</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">secretAccessKey</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 57</span> </span><span class="WHIT">  </span><span class="NAME">this.region</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">opts.region</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="STRN">'us-east-1'</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 58</span> </span><span class="WHIT">  </span><span class="NAME">this.host</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="STRN">'sqs.'</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">this.region</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="STRN">'.amazonaws.com'</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 59</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 60</span> 
+<span class='line'> 61</span> </span><span class="COMM">/**
+<span class='line'> 62</span>  * Create a SQS queue
+<span class='line'> 63</span>  * @param  {string} name The name of the queue
+<span class='line'> 64</span>  *   Constraints: Maximum 80 characters; alphanumeric characters, hyphens (-),
+<span class='line'> 65</span>  *   and underscores (_) are allowed.
+<span class='line'> 66</span>  * @param  {object} [attrs] Attributes for the queue.
+<span class='line'> 67</span>  * @config {number} [attrs.VisibilityTimeout] The length of time (in seconds) that a
+<span class='line'> 68</span>  * message received from a queue will be invisible to other receiving components
+<span class='line'> 69</span>  * when they ask to receive messages. For more information about
+<span class='line'> 70</span>  * VisibilityTimeout, see Visibility Timeout in the Amazon SQS Developer Guide.
+<span class='line'> 71</span>  * An integer from 0 to 43200 (12 hours). The default for this attribute is 30.
+<span class='line'> 72</span>  * @config {string} [attrs.Policy] The formal description of the permissions for a resource.
+<span class='line'> 73</span>  * For more information about Policy, see Basic Policy Structure in the Amazon
+<span class='line'> 74</span>  * SQS Developer Guide. A valid form-url-encoded policy. For more information
+<span class='line'> 75</span>  * about policy structure, see Basic Policy Structure in the Amazon SQS
+<span class='line'> 76</span>  * Developer Guide. For more information about form-url-encoding,
+<span class='line'> 77</span>  * see http://www.w3.org/MarkUp/html-spec/html-spec_8.html#SEC8.2.1.
+<span class='line'> 78</span>  * @config {number} [attrs.MaximumMessageSize] The limit of how many bytes a message can
+<span class='line'> 79</span>  * contain before Amazon SQS rejects it. An integer from 1024 bytes (1 KiB) up
+<span class='line'> 80</span>  * to 65536 bytes (64 KiB). The default for this attribute is 65536 (64 KiB).
+<span class='line'> 81</span>  * @config {number} [attrs.MessageRetentionPeriod] The number of seconds Amazon SQS retains a
+<span class='line'> 82</span>  * message. Integer representing seconds, from 60 (1 minute) to 1209600
+<span class='line'> 83</span>  * (14 days). The default for this attribute is 345600 (4 days).
+<span class='line'> 84</span>  * @config {number} [attrs.DelaySeconds] The time in seconds that the delivery of all messages
+<span class='line'> 85</span>  * in the queue will be delayed. An integer from 0 to 900 (15 minutes). The
+<span class='line'> 86</span>  * default for this attribute is 0 (zero).
+<span class='line'> 87</span>  * @param  {Function} fn Callback function for when queue is created, Callback
+<span class='line'> 88</span>  * function takes two parameters error and result, result will be full name
+<span class='line'> 89</span>  * for the queue.
+<span class='line'> 90</span>  * @link SQS.prototype.deleteQueue
+<span class='line'> 91</span>  */</span><span class="WHIT">
+<span class='line'> 92</span> </span><span class="NAME">SQS.prototype.createQueue</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">name</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">attrs</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">fn</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 93</span> </span><span class="WHIT">  </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">fn</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 94</span> </span><span class="WHIT">    </span><span class="NAME">fn</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">attrs</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 95</span> </span><span class="WHIT">    </span><span class="NAME">attrs</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 96</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'> 97</span> 
+<span class='line'> 98</span> </span><span class="WHIT">  </span><span class="COMM">// Check name to make sure meets constraints</span><span class="WHIT">
+<span class='line'> 99</span> </span><span class="WHIT">  </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">name.length</span><span class="WHIT"> </span><span class="PUNC">></span><span class="WHIT"> </span><span class="NUMB">80</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="NAME">name.search</span><span class="PUNC">(</span><span class="STRN">" "</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">!=</span><span class="WHIT"> </span><span class="PUNC">-</span><span class="NUMB">1</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>100</span> </span><span class="WHIT">    </span><span class="NAME">fn</span><span class="PUNC">(</span><span class="STRN">'Name is constrained to maximum 80 characters; '</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT">
+<span class='line'>101</span> </span><span class="WHIT">       </span><span class="STRN">'alphanumeric characters, hyphens (-), and underscores (_).'</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>102</span> </span><span class="WHIT">    </span><span class="KEYW">return</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>103</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>104</span> 
+<span class='line'>105</span> </span><span class="WHIT">  </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">params</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>106</span> </span><span class="WHIT">    </span><span class="NAME">QueueName</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">name</span><span class="WHIT">
+<span class='line'>107</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>108</span> 
+<span class='line'>109</span> </span><span class="WHIT">  </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">attrs</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>110</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">1</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>111</span> </span><span class="WHIT">    </span><span class="KEYW">for</span><span class="PUNC">(</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">prop</span><span class="WHIT"> </span><span class="KEYW">in</span><span class="WHIT"> </span><span class="NAME">attrs</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>112</span> </span><span class="WHIT">      </span><span class="NAME">params</span><span class="PUNC">[</span><span class="STRN">"Attribute."</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="STRN">".Name"</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">prop</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>113</span> </span><span class="WHIT">      </span><span class="NAME">params</span><span class="PUNC">[</span><span class="STRN">"Attribute."</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="STRN">".Value"</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">attrs</span><span class="PUNC">[</span><span class="NAME">prop</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>114</span> </span><span class="WHIT">      </span><span class="NAME">i</span><span class="PUNC">++</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>115</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>116</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>117</span> 
+<span class='line'>118</span> </span><span class="WHIT">  </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">host</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.host</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>119</span> </span><span class="WHIT">  </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">aws</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">awsjs.createSQSClient</span><span class="PUNC">(</span><span class="WHIT">
+<span class='line'>120</span> </span><span class="WHIT">    </span><span class="NAME">this.accessKeyId</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>121</span> </span><span class="WHIT">    </span><span class="NAME">this.secretAccessKey</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>122</span> </span><span class="WHIT">    </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>123</span> </span><span class="WHIT">      </span><span class="NAME">host</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">this.host</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>124</span> </span><span class="WHIT">      </span><span class="NAME">secure</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>125</span> </span><span class="WHIT">      </span><span class="NAME">version</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'2011-10-01'</span><span class="WHIT">
+<span class='line'>126</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>127</span> 
+<span class='line'>128</span> </span><span class="WHIT">  </span><span class="NAME">makeCall</span><span class="PUNC">(</span><span class="NAME">aws</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">'CreateQueue'</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">params</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">result</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>129</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">url</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="STRN">''</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>130</span> 
+<span class='line'>131</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">result</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">result.CreateQueueResult</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>132</span> </span><span class="WHIT">      </span><span class="NAME">url</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">result.CreateQueueResult.QueueUrl</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>133</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>134</span> 
+<span class='line'>135</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">name</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">url.replace</span><span class="PUNC">(</span><span class="STRN">'https://'</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">host</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">''</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>136</span> 
+<span class='line'>137</span> </span><span class="WHIT">    </span><span class="NAME">fn</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">name</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>138</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>139</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>140</span> 
+<span class='line'>141</span> </span><span class="COMM">/**
+<span class='line'>142</span>  * Deletes a SQS queue.
+<span class='line'>143</span>  * @param  {string} name The full name for the queue, should be something like
+<span class='line'>144</span>  * /12312301239/nameOfQueue.
+<span class='line'>145</span>  * @param  {Function} fn Callback function for when queue is created
+<span class='line'>146</span>  *   Callback function takes one parameter, error
+<span class='line'>147</span>  * @link SQS.prototype.createQueue
+<span class='line'>148</span>  */</span><span class="WHIT">
+<span class='line'>149</span> </span><span class="NAME">SQS.prototype.deleteQueue</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">name</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">fn</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>150</span> </span><span class="WHIT">  </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">aws</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">awsjs.createSQSClient</span><span class="PUNC">(</span><span class="WHIT">
+<span class='line'>151</span> </span><span class="WHIT">    </span><span class="NAME">this.accessKeyId</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>152</span> </span><span class="WHIT">    </span><span class="NAME">this.secretAccessKey</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>153</span> </span><span class="WHIT">    </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>154</span> </span><span class="WHIT">      </span><span class="NAME">host</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">this.host</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>155</span> </span><span class="WHIT">      </span><span class="NAME">path</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">name</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>156</span> </span><span class="WHIT">      </span><span class="NAME">secure</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="WHIT">
+<span class='line'>157</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>158</span> 
+<span class='line'>159</span> </span><span class="WHIT">  </span><span class="NAME">makeCall</span><span class="PUNC">(</span><span class="NAME">aws</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">'DeleteQueue'</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="PUNC">}</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">result</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>160</span> </span><span class="WHIT">    </span><span class="NAME">fn</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>161</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>162</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>163</span> 
+<span class='line'>164</span> </span><span class="COMM">/**
+<span class='line'>165</span>  * Returns the full qualified url for a queue.
+<span class='line'>166</span>  * @param  {string} name The full name of the queue, should be something like
+<span class='line'>167</span>  * /12312301239/nameOfQueue.
+<span class='line'>168</span>  * @param  {Function} fn The callback for when the url is retrieved, Callback
+<span class='line'>169</span>  * function should take two parameters, error and result which is queue url
+<span class='line'>170</span>  * @link SQS.prototype.listQueues
+<span class='line'>171</span>  */</span><span class="WHIT">
+<span class='line'>172</span> </span><span class="NAME">SQS.prototype.getQueueUrl</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">name</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">fn</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>173</span> </span><span class="WHIT">  </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">aws</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">awsjs.createSQSClient</span><span class="PUNC">(</span><span class="WHIT">
+<span class='line'>174</span> </span><span class="WHIT">    </span><span class="NAME">this.accessKeyId</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>175</span> </span><span class="WHIT">    </span><span class="NAME">this.secretAccessKey</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>176</span> </span><span class="WHIT">    </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>177</span> </span><span class="WHIT">      </span><span class="NAME">host</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">this.host</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>178</span> </span><span class="WHIT">      </span><span class="NAME">secure</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>179</span> </span><span class="WHIT">      </span><span class="NAME">version</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'2011-10-01'</span><span class="WHIT">
+<span class='line'>180</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>181</span> </span><span class="WHIT">  </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">params</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>182</span> </span><span class="WHIT">    </span><span class="NAME">QueueName</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">name</span><span class="WHIT">
+<span class='line'>183</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>184</span> </span><span class="WHIT">  </span><span class="NAME">makeCall</span><span class="PUNC">(</span><span class="NAME">aws</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">'GetQueueUrl'</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">params</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">result</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>185</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">url</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="STRN">''</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>186</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">result</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">result.GetQueueUrlResult</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>187</span> </span><span class="WHIT">      </span><span class="NAME">url</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">result.GetQueueUrlResult.QueueUrl</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>188</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>189</span> </span><span class="WHIT">    </span><span class="NAME">fn</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">url</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>190</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>191</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>192</span> 
+<span class='line'>193</span> </span><span class="COMM">/**
+<span class='line'>194</span>  * Returns a list of available queues.
+<span class='line'>195</span>  * @param  {string} [prefix] Queue name prefix to filter the list of queues to
+<span class='line'>196</span>  * return.
+<span class='line'>197</span>  * @param  {Function} fn The callback for when the queue list is retrieved,
+<span class='line'>198</span>  * Callback function should take two parameters, error and result which is
+<span class='line'>199</span>  * an array of queue names
+<span class='line'>200</span>  * @link SQS.prototype.getQueueUrl
+<span class='line'>201</span>  */</span><span class="WHIT">
+<span class='line'>202</span> </span><span class="NAME">SQS.prototype.listQueues</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">prefix</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">fn</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>203</span> </span><span class="WHIT">  </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">fn</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>204</span> </span><span class="WHIT">    </span><span class="NAME">fn</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">prefix</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>205</span> </span><span class="WHIT">    </span><span class="NAME">prefix</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>206</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>207</span> 
+<span class='line'>208</span> </span><span class="WHIT">  </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">host</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.host</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>209</span> 
+<span class='line'>210</span> </span><span class="WHIT">  </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">aws</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">awsjs.createSQSClient</span><span class="PUNC">(</span><span class="WHIT">
+<span class='line'>211</span> </span><span class="WHIT">    </span><span class="NAME">this.accessKeyId</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>212</span> </span><span class="WHIT">    </span><span class="NAME">this.secretAccessKey</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>213</span> </span><span class="WHIT">    </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>214</span> </span><span class="WHIT">      </span><span class="NAME">host</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">this.host</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>215</span> </span><span class="WHIT">      </span><span class="NAME">secure</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>216</span> </span><span class="WHIT">      </span><span class="NAME">version</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'2011-10-01'</span><span class="WHIT">
+<span class='line'>217</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>218</span> 
+<span class='line'>219</span> </span><span class="WHIT">  </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">params</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>220</span> </span><span class="WHIT">  </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">prefix</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>221</span> </span><span class="WHIT">    </span><span class="NAME">params.QueueNamePrefix</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">prefix</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>222</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>223</span> 
+<span class='line'>224</span> </span><span class="WHIT">  </span><span class="NAME">makeCall</span><span class="PUNC">(</span><span class="NAME">aws</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">'ListQueues'</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">params</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">result</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>225</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">urls</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">[</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>226</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">result</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">result.ListQueuesResult</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>227</span> </span><span class="WHIT">      </span><span class="NAME">urls</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">result.ListQueuesResult.QueueUrl</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>228</span> 
+<span class='line'>229</span> </span><span class="WHIT">      </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="KEYW">typeof</span><span class="WHIT"> </span><span class="NAME">urls</span><span class="WHIT"> </span><span class="PUNC">===</span><span class="WHIT"> </span><span class="STRN">'string'</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>230</span> </span><span class="WHIT">        </span><span class="NAME">urls</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">[</span><span class="NAME">urls</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>231</span> </span><span class="WHIT">      </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>232</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>233</span> </span><span class="WHIT">    </span><span class="KEYW">for</span><span class="PUNC">(</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NAME">urls.length</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">++</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>234</span> </span><span class="WHIT">      </span><span class="NAME">urls</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">urls</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">replace</span><span class="PUNC">(</span><span class="STRN">'https://'</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">host</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">''</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>235</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>236</span> </span><span class="WHIT">    </span><span class="NAME">fn</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">urls</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>237</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>238</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>239</span> 
+<span class='line'>240</span> </span><span class="COMM">/**
+<span class='line'>241</span>  * Sends a message to a queue.
+<span class='line'>242</span>  * @param  {string} queue The full name of the queue. Should be something like
+<span class='line'>243</span>  * /12312301239/nameOfQueue.
+<span class='line'>244</span>  * @param  {string} message The message to add to the queue.
+<span class='line'>245</span>  * @param  {number} [delay] The delay to wait before the message is actually
+<span class='line'>246</span>  * visible in the queue.
+<span class='line'>247</span>  * @param  {Function} fn The callback for when the message is add to queue,
+<span class='line'>248</span>  * Callback function should take two parameters, error and result which is
+<span class='line'>249</span>  * and the message details.
+<span class='line'>250</span>  * @link SQS.prototype.sendMessageBatch
+<span class='line'>251</span>  */</span><span class="WHIT">
+<span class='line'>252</span> </span><span class="NAME">SQS.prototype.sendMessage</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">queue</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">message</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">delay</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">fn</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>253</span> </span><span class="WHIT">  </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">fn</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>254</span> </span><span class="WHIT">    </span><span class="NAME">fn</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">delay</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>255</span> </span><span class="WHIT">    </span><span class="NAME">delay</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>256</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>257</span> 
+<span class='line'>258</span> </span><span class="WHIT">  </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">aws</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">awsjs.createSQSClient</span><span class="PUNC">(</span><span class="WHIT">
+<span class='line'>259</span> </span><span class="WHIT">    </span><span class="NAME">this.accessKeyId</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>260</span> </span><span class="WHIT">    </span><span class="NAME">this.secretAccessKey</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>261</span> </span><span class="WHIT">    </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>262</span> </span><span class="WHIT">      </span><span class="NAME">host</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">this.host</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>263</span> </span><span class="WHIT">      </span><span class="NAME">path</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">queue</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>264</span> </span><span class="WHIT">      </span><span class="NAME">secure</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="WHIT">
+<span class='line'>265</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>266</span> 
+<span class='line'>267</span> </span><span class="WHIT">  </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">params</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>268</span> </span><span class="WHIT">    </span><span class="NAME">MessageBody</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">message</span><span class="WHIT">
+<span class='line'>269</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>270</span> 
+<span class='line'>271</span> </span><span class="WHIT">  </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">delay</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>272</span> </span><span class="WHIT">    </span><span class="NAME">params.DelaySeconds</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">delay</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>273</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>274</span> 
+<span class='line'>275</span> </span><span class="WHIT">  </span><span class="NAME">makeCall</span><span class="PUNC">(</span><span class="NAME">aws</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">'SendMessage'</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">params</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">result</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>276</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>277</span> </span><span class="WHIT">      </span><span class="NAME">fn</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>278</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT"> </span><span class="KEYW">else</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>279</span> </span><span class="WHIT">      </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">ret</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>280</span> </span><span class="WHIT">      </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">result.SendMessageResult</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>281</span> </span><span class="WHIT">        </span><span class="NAME">ret</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">result.SendMessageResult</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>282</span> </span><span class="WHIT">      </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>283</span> </span><span class="WHIT">      </span><span class="NAME">fn</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">ret</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>284</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>285</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>286</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>287</span> 
+<span class='line'>288</span> </span><span class="COMM">/**
+<span class='line'>289</span>  * Sends a batch of messages to a queue.
+<span class='line'>290</span>  * @param  {string} queue The full name of the queue. Should be something like
+<span class='line'>291</span>  * /12231231231/nameOfQueue.
+<span class='line'>292</span>  * @param  {Array} messages An array of objects, each object should have
+<span class='line'>293</span>  * message property and optional delay property.
+<span class='line'>294</span>  * @param  {Function} fn The callback for when the message is add to queue,
+<span class='line'>295</span>  * Callback function should take two parameters, error and result which is
+<span class='line'>296</span>  * an array of message details.
+<span class='line'>297</span>  * @link SQS.prototype.sendMessage
+<span class='line'>298</span>  */</span><span class="WHIT">
+<span class='line'>299</span> </span><span class="NAME">SQS.prototype.sendMessageBatch</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">queue</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">messages</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">fn</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>300</span> </span><span class="WHIT">  </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">aws</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">awsjs.createSQSClient</span><span class="PUNC">(</span><span class="WHIT">
+<span class='line'>301</span> </span><span class="WHIT">    </span><span class="NAME">this.accessKeyId</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>302</span> </span><span class="WHIT">    </span><span class="NAME">this.secretAccessKey</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>303</span> </span><span class="WHIT">    </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>304</span> </span><span class="WHIT">      </span><span class="NAME">host</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">this.host</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>305</span> </span><span class="WHIT">      </span><span class="NAME">path</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">queue</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>306</span> </span><span class="WHIT">      </span><span class="NAME">secure</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="WHIT">
+<span class='line'>307</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>308</span> 
+<span class='line'>309</span> </span><span class="WHIT">  </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">params</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>310</span> 
+<span class='line'>311</span> </span><span class="WHIT">  </span><span class="KEYW">for</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NAME">messages.length</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">++</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>312</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">index</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NUMB">1</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>313</span> </span><span class="WHIT">    </span><span class="NAME">params</span><span class="PUNC">[</span><span class="STRN">'SendMessageBatchRequestEntry.'</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">index</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="STRN">'.Id'</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>314</span> </span><span class="WHIT">    </span><span class="NAME">params</span><span class="PUNC">[</span><span class="STRN">'SendMessageBatchRequestEntry.'</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">index</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="STRN">'.MessageBody'</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">messages</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">message</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>315</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">messages</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">delay</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>316</span> </span><span class="WHIT">      </span><span class="NAME">params</span><span class="PUNC">[</span><span class="STRN">'SendMessageBatchRequestEntry.'</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">index</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="STRN">'.DelaySeconds'</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">messages</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">delay</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>317</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>318</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>319</span> 
+<span class='line'>320</span> </span><span class="WHIT">  </span><span class="NAME">makeCall</span><span class="PUNC">(</span><span class="NAME">aws</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">'SendMessageBatch'</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">params</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">result</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>321</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>322</span> </span><span class="WHIT">      </span><span class="NAME">fn</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>323</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT"> </span><span class="KEYW">else</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>324</span> </span><span class="WHIT">      </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">ret</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>325</span> </span><span class="WHIT">      </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">result.SendMessageBatchResult</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT">
+<span class='line'>326</span> </span><span class="WHIT">         </span><span class="NAME">result.SendMessageBatchResult.SendMessageBatchResultEntry</span><span class="PUNC">)</span><span class="WHIT">
+<span class='line'>327</span> </span><span class="WHIT">      </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>328</span> </span><span class="WHIT">        </span><span class="NAME">ret</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">result.SendMessageBatchResult.SendMessageBatchResultEntry</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>329</span> </span><span class="WHIT">      </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>330</span> </span><span class="WHIT">      </span><span class="NAME">fn</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">ret</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>331</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>332</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>333</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>334</span> 
+<span class='line'>335</span> </span><span class="COMM">/**
+<span class='line'>336</span>  * Retrieves any messages from a queue if any are available. If none are
+<span class='line'>337</span>  * available then an empty array is returned as the result.
+<span class='line'>338</span>  * @param  {string} queue The full name of the queue to check for messages,
+<span class='line'>339</span>  * should look something like /12312301239/nameOfQueue.
+<span class='line'>340</span>  * @param  {object} [opts] Options for retreiving messages.
+<span class='line'>341</span>  * @config {number} [opts.MaxNumberOfMessages] The max number of messages to pull
+<span class='line'>342</span>  * from queue.
+<span class='line'>343</span>  * @config {number} [opts.VisibilityTimeout] The length of time in seconds that a
+<span class='line'>344</span>  * message is not visible for receive requests after returned from this one.
+<span class='line'>345</span>  * @param  {Function} fn The callback for when the message(s) are pulled from
+<span class='line'>346</span>  * queue, Callback function should take two parameters, error and result which
+<span class='line'>347</span>  * is an array of messages.
+<span class='line'>348</span>  * @link SQS.prototype.sendMessage
+<span class='line'>349</span>  */</span><span class="WHIT">
+<span class='line'>350</span> </span><span class="NAME">SQS.prototype.receiveMessage</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">queue</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">opts</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">fn</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>351</span> </span><span class="WHIT">  </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">fn</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>352</span> </span><span class="WHIT">    </span><span class="NAME">fn</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">opts</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>353</span> </span><span class="WHIT">    </span><span class="NAME">opts</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>354</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>355</span> 
+<span class='line'>356</span> </span><span class="WHIT">  </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">aws</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">awsjs.createSQSClient</span><span class="PUNC">(</span><span class="WHIT">
+<span class='line'>357</span> </span><span class="WHIT">    </span><span class="NAME">this.accessKeyId</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>358</span> </span><span class="WHIT">    </span><span class="NAME">this.secretAccessKey</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>359</span> </span><span class="WHIT">    </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>360</span> </span><span class="WHIT">      </span><span class="NAME">host</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">this.host</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>361</span> </span><span class="WHIT">      </span><span class="NAME">path</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">queue</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>362</span> </span><span class="WHIT">      </span><span class="NAME">secure</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="WHIT">
+<span class='line'>363</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>364</span> 
+<span class='line'>365</span> </span><span class="WHIT">  </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">params</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>366</span> 
+<span class='line'>367</span> </span><span class="WHIT">  </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">opts</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">opts.MaxNumberOfMessages</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>368</span> </span><span class="WHIT">    </span><span class="NAME">params.MaxNumberOfMessages</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">opts.MaxNumberOfMessages</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>369</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>370</span> 
+<span class='line'>371</span> </span><span class="WHIT">  </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">opts</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">opts.VisibilityTimeout</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>372</span> </span><span class="WHIT">    </span><span class="NAME">params.VisibilityTimeout</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">opts.VisibilityTimeout</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>373</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>374</span> 
+<span class='line'>375</span> </span><span class="WHIT">  </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">opts</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">opts.attrs</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>376</span> </span><span class="WHIT">    </span><span class="KEYW">for</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">1</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">&lt;=</span><span class="WHIT"> </span><span class="NAME">opts.attrs.length</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">++</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>377</span> </span><span class="WHIT">      </span><span class="NAME">params</span><span class="PUNC">[</span><span class="STRN">"AttributeName."</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">opts.attrs</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">-</span><span class="NUMB">1</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>378</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>379</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>380</span> 
+<span class='line'>381</span> </span><span class="WHIT">  </span><span class="NAME">makeCall</span><span class="PUNC">(</span><span class="NAME">aws</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">'ReceiveMessage'</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">params</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">result</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>382</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>383</span> </span><span class="WHIT">      </span><span class="NAME">fn</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>384</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT"> </span><span class="KEYW">else</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>385</span> </span><span class="WHIT">      </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">messages</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>386</span> </span><span class="WHIT">      </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">result.ReceiveMessageResult</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">result.ReceiveMessageResult.Message</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>387</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">result.ReceiveMessageResult.Message.length</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>388</span> </span><span class="WHIT">          </span><span class="NAME">messages</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">result.ReceiveMessageResult.Message</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>389</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT"> </span><span class="KEYW">else</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>390</span> </span><span class="WHIT">          </span><span class="NAME">messages</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">[</span><span class="NAME">result.ReceiveMessageResult.Message</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>391</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>392</span> </span><span class="WHIT">      </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>393</span> </span><span class="WHIT">      </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">messages</span><span class="WHIT"> </span><span class="PUNC">!==</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>394</span> </span><span class="WHIT">        </span><span class="KEYW">for</span><span class="PUNC">(</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NAME">messages.length</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">++</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>395</span> </span><span class="WHIT">          </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">message</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">messages</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>396</span> </span><span class="WHIT">          </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">message.Attribute</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">message.Attribute.length</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>397</span> </span><span class="WHIT">            </span><span class="KEYW">for</span><span class="PUNC">(</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">j</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">j</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NAME">message.Attribute.length</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">j</span><span class="PUNC">++</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>398</span> </span><span class="WHIT">              </span><span class="NAME">message</span><span class="PUNC">[</span><span class="NAME">message.Attribute</span><span class="PUNC">[</span><span class="NAME">j</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">Name</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">message.Attribute</span><span class="PUNC">[</span><span class="NAME">j</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">Value</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>399</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>400</span> </span><span class="WHIT">          </span><span class="PUNC">}</span><span class="WHIT"> </span><span class="KEYW">else</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>401</span> </span><span class="WHIT">            </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">message.Attribute</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>402</span> </span><span class="WHIT">              </span><span class="NAME">message</span><span class="PUNC">[</span><span class="NAME">message.Attribute.Name</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">message.Attribute.Value</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>403</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>404</span> </span><span class="WHIT">          </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>405</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>406</span> </span><span class="WHIT">      </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>407</span> </span><span class="WHIT">      </span><span class="NAME">fn</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">messages</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>408</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>409</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>410</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>411</span> 
+<span class='line'>412</span> </span><span class="COMM">/**
+<span class='line'>413</span>  * Deletes a message from a queue.
+<span class='line'>414</span>  * @param  {string} queue The full name of the queue to delete the
+<span class='line'>415</span>  * message from, name should be something like /1212412123/nameOfQueue.
+<span class='line'>416</span>  * @param {string} messageReceipt The message receipt of the message to
+<span class='line'>417</span>  * delete.
+<span class='line'>418</span>  * @param  {Function} fn Callback function for deleting a message, callback will
+<span class='line'>419</span>  * include an err (or null).
+<span class='line'>420</span>  * @link SQS.prototype.deleteMessage
+<span class='line'>421</span>  */</span><span class="WHIT">
+<span class='line'>422</span> </span><span class="NAME">SQS.prototype.deleteMessage</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">queue</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">messageReceipt</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">fn</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>423</span> </span><span class="WHIT">  </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">aws</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">awsjs.createSQSClient</span><span class="PUNC">(</span><span class="WHIT">
+<span class='line'>424</span> </span><span class="WHIT">    </span><span class="NAME">this.accessKeyId</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>425</span> </span><span class="WHIT">    </span><span class="NAME">this.secretAccessKey</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>426</span> </span><span class="WHIT">    </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>427</span> </span><span class="WHIT">      </span><span class="NAME">host</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">this.host</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>428</span> </span><span class="WHIT">      </span><span class="NAME">path</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">queue</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>429</span> </span><span class="WHIT">      </span><span class="NAME">secure</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="WHIT">
+<span class='line'>430</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>431</span> 
+<span class='line'>432</span> </span><span class="WHIT">  </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">params</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>433</span> </span><span class="WHIT">    </span><span class="NAME">ReceiptHandle</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">messageReceipt</span><span class="WHIT">
+<span class='line'>434</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>435</span> 
+<span class='line'>436</span> </span><span class="WHIT">  </span><span class="NAME">makeCall</span><span class="PUNC">(</span><span class="NAME">aws</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">'DeleteMessage'</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">params</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">result</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>437</span> </span><span class="WHIT">    </span><span class="NAME">fn</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>438</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>439</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>440</span> 
+<span class='line'>441</span> </span><span class="COMM">/**
+<span class='line'>442</span>  * Deletes a batch of messages from a queue.
+<span class='line'>443</span>  * @param  {string} queue The full name of the queue to delete the
+<span class='line'>444</span>  * message from, name should be something like /1212412123/nameOfQueue.
+<span class='line'>445</span>  * @param  {Array} messageReceipts An array of message receipts to delete from
+<span class='line'>446</span>  * the queue.
+<span class='line'>447</span>  * @param  {Function} fn Callback function for deleting messages, callback will
+<span class='line'>448</span>  * include an err (or null).
+<span class='line'>449</span>  * @link SQS.prototype.deleteMessageBatch
+<span class='line'>450</span>  */</span><span class="WHIT">
+<span class='line'>451</span> </span><span class="NAME">SQS.prototype.deleteMessageBatch</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">queue</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">messageReceipts</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">fn</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>452</span> </span><span class="WHIT">  </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">aws</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">awsjs.createSQSClient</span><span class="PUNC">(</span><span class="WHIT">
+<span class='line'>453</span> </span><span class="WHIT">    </span><span class="NAME">this.accessKeyId</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>454</span> </span><span class="WHIT">    </span><span class="NAME">this.secretAccessKey</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>455</span> </span><span class="WHIT">    </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>456</span> </span><span class="WHIT">      </span><span class="NAME">host</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">this.host</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>457</span> </span><span class="WHIT">      </span><span class="NAME">path</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">queue</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>458</span> </span><span class="WHIT">      </span><span class="NAME">secure</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="WHIT">
+<span class='line'>459</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>460</span> 
+<span class='line'>461</span> </span><span class="WHIT">  </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">params</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>462</span> 
+<span class='line'>463</span> </span><span class="WHIT">  </span><span class="KEYW">for</span><span class="PUNC">(</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">1</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">&lt;=</span><span class="WHIT"> </span><span class="NAME">messageReceipts.length</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">++</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>464</span> </span><span class="WHIT">    </span><span class="NAME">params</span><span class="PUNC">[</span><span class="STRN">'DeleteMessageBatchRequestEntry.'</span><span class="WHIT">  </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="STRN">'.Id'</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="STRN">'message_'</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>465</span> </span><span class="WHIT">    </span><span class="NAME">params</span><span class="PUNC">[</span><span class="STRN">'DeleteMessageBatchRequestEntry.'</span><span class="WHIT">  </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="STRN">'.ReceiptHandle'</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">messageReceipts</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">-</span><span class="NUMB">1</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>466</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>467</span> 
+<span class='line'>468</span> </span><span class="WHIT">  </span><span class="NAME">makeCall</span><span class="PUNC">(</span><span class="NAME">aws</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">'DeleteMessageBatch'</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">params</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">result</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>469</span> </span><span class="WHIT">    </span><span class="NAME">fn</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>470</span> </span><span class="WHIT">  </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>471</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>472</span> 
+<span class='line'>473</span> </span><span class="COMM">/** Export module **/</span><span class="WHIT">
+<span class='line'>474</span> </span><span class="NAME">module.exports</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">SQS</span><span class="PUNC">;</span></pre></body></html>

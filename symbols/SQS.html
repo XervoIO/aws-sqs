@@ -1,0 +1,881 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf8" />
+  
+  
+  <title>JsDoc Reference - SQS</title>
+  <meta name="generator" content="JsDoc Toolkit" />
+
+  <link href="../stylesheets/default.css" type="text/css" rel="stylesheet" media="all" />
+</head>
+
+<body id="class_detail">
+  <div id="body_wrapper">
+    <div id="wrapper">
+      <div id="box">
+        <span id="blue_label"></span>
+        <div id="box_wrapper">
+
+          <div id="nav">
+            <h2>Classes</h2>
+<ul>
+  
+    <li><em><a href="../symbols/_global_.html">_global_</a></em></li>
+  
+    <li><a href="../symbols/SQS.html">SQS</a></li>
+  
+</ul>
+
+<p class="class_index index_link"><span>&#x21A9;</span> <a href="../index.html">Class Index</a></p>
+<p class="class_index index_link"><span>&#x21A9;</span> <a href="../files.html">File Index</a></p>
+
+          </div>
+
+          <div id="content">
+            <h1>
+              
+              Class SQS
+            </h1>
+            <div id="content_wrapper">
+
+                
+                
+                
+                <p>
+                  
+                </p>
+                
+                
+                  <p class="defined">
+                    Defined in: <a href="../symbols/src/lib_sqs.js.html">sqs.js</a>.
+                  </p>
+                
+
+                <!-- ============================== constructor summary ==================== -->			
+                
+                  <table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class SQS.">
+                    <caption>Class Summary</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Constructor Attributes</th>
+                        <th scope="col">Constructor Name and Description</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="attributes">
+                          &nbsp;
+                        </td>
+                        <td class="nameDescription" >
+                          <div class="fixedFont">
+                            <strong><a href="../symbols/SQS.html#constructor">SQS</a></strong>(accessKeyId, secretAccessKey, opts)
+                          </div>
+                          <p class="description">Simple Queue Service, used to communicate and run commands against Amazon's
+SQS.</p>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                
+
+                <!-- ============================== properties summary ===================== -->
+                
+
+                  <!-- ============================== methods summary ======================== -->
+                  
+                    
+                    
+                      <table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class SQS.">
+                        <caption>Method Summary</caption>
+                        <thead>
+                          <tr>
+                            <th scope="col">Method Attributes</th>
+                            <th scope="col">Method Name and Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          
+                            <tr>
+                              <td class="attributes">
+                                &nbsp;
+                              </td>
+                                <td class="nameDescription">
+                                  <div class="fixedFont"><strong><a href="../symbols/SQS.html#createQueue">createQueue</a></strong>(name, attrs, fn)
+                                  </div>
+                                  <p class="description">Create a SQS queue</p>
+                                </td>
+                              </tr>
+                            
+                            <tr>
+                              <td class="attributes">
+                                &nbsp;
+                              </td>
+                                <td class="nameDescription">
+                                  <div class="fixedFont"><strong><a href="../symbols/SQS.html#deleteMessage">deleteMessage</a></strong>(queue, messageReceipt, fn)
+                                  </div>
+                                  <p class="description">Deletes a message from a queue.</p>
+                                </td>
+                              </tr>
+                            
+                            <tr>
+                              <td class="attributes">
+                                &nbsp;
+                              </td>
+                                <td class="nameDescription">
+                                  <div class="fixedFont"><strong><a href="../symbols/SQS.html#deleteMessageBatch">deleteMessageBatch</a></strong>(queue, messageReceipts, fn)
+                                  </div>
+                                  <p class="description">Deletes a batch of messages from a queue.</p>
+                                </td>
+                              </tr>
+                            
+                            <tr>
+                              <td class="attributes">
+                                &nbsp;
+                              </td>
+                                <td class="nameDescription">
+                                  <div class="fixedFont"><strong><a href="../symbols/SQS.html#deleteQueue">deleteQueue</a></strong>(name, fn)
+                                  </div>
+                                  <p class="description">Deletes a SQS queue.</p>
+                                </td>
+                              </tr>
+                            
+                            <tr>
+                              <td class="attributes">
+                                &nbsp;
+                              </td>
+                                <td class="nameDescription">
+                                  <div class="fixedFont"><strong><a href="../symbols/SQS.html#getQueueUrl">getQueueUrl</a></strong>(name, fn)
+                                  </div>
+                                  <p class="description">Returns the full qualified url for a queue.</p>
+                                </td>
+                              </tr>
+                            
+                            <tr>
+                              <td class="attributes">
+                                &nbsp;
+                              </td>
+                                <td class="nameDescription">
+                                  <div class="fixedFont"><strong><a href="../symbols/SQS.html#listQueues">listQueues</a></strong>(prefix, fn)
+                                  </div>
+                                  <p class="description">Returns a list of available queues.</p>
+                                </td>
+                              </tr>
+                            
+                            <tr>
+                              <td class="attributes">
+                                &nbsp;
+                              </td>
+                                <td class="nameDescription">
+                                  <div class="fixedFont"><strong><a href="../symbols/SQS.html#receiveMessage">receiveMessage</a></strong>(queue, opts, fn)
+                                  </div>
+                                  <p class="description">Retrieves any messages from a queue if any are available.</p>
+                                </td>
+                              </tr>
+                            
+                            <tr>
+                              <td class="attributes">
+                                &nbsp;
+                              </td>
+                                <td class="nameDescription">
+                                  <div class="fixedFont"><strong><a href="../symbols/SQS.html#sendMessage">sendMessage</a></strong>(queue, message, delay, fn)
+                                  </div>
+                                  <p class="description">Sends a message to a queue.</p>
+                                </td>
+                              </tr>
+                            
+                            <tr>
+                              <td class="attributes">
+                                &nbsp;
+                              </td>
+                                <td class="nameDescription">
+                                  <div class="fixedFont"><strong><a href="../symbols/SQS.html#sendMessageBatch">sendMessageBatch</a></strong>(queue, messages, fn)
+                                  </div>
+                                  <p class="description">Sends a batch of messages to a queue.</p>
+                                </td>
+                              </tr>
+                            
+                          </tbody>
+                        </table>
+                    
+
+                    
+                    
+                    
+                    <!-- ============================== events summary ======================== -->
+                    
+
+
+                        <!-- ============================== constructor details ==================== -->		
+                        
+                          <div class="details"><a name="constructor"> </a>
+                            <div class="sectionTitle">
+                              Class Detail
+                            </div>
+                            
+                            <div class="module">
+                              
+                              <h2><strong> 
+                                SQS(accessKeyId, secretAccessKey, opts)</strong>
+                              </h2>
+
+                              <p class="description">
+                                Simple Queue Service, used to communicate and run commands against Amazon's
+SQS.
+                                
+                              </p>
+
+                              
+                                
+                                  <pre class="code">  var sqs = new SQS('awsId', 'awsSecret');</pre>
+                                
+                              
+
+
+                              
+                                <dl class="detailList">
+                                  <dt class="heading">Parameters:</dt>
+                                  
+                                    <dt>
+                                      <span class="fixedFont">{string}</span>  <strong>accessKeyId</strong>
+                                      
+                                    </dt>
+                                    <dd>key id</dd>
+                                  
+                                    <dt>
+                                      <span class="fixedFont">{string}</span>  <strong>secretAccessKey</strong>
+                                      
+                                    </dt>
+                                    <dd>secret access key</dd>
+                                  
+                                    <dt>
+                                      <span class="fixedFont">{object}</span>  <strong>opts</strong>
+                                      <em>Optional</em>
+                                    </dt>
+                                    <dd>optional parameters</dd>
+                                  
+                                    <dt>
+                                      <span class="fixedFont">{string}</span>  <strong>opts.region</strong>
+                                      <em>Optional</em>
+                                    </dt>
+                                    <dd>the aws region, must be one of these:
+  us-east-1, us-west-1, us-west-2, eu-west-1, ap-southeast-1, ap-northeast-1</dd>
+                                  
+                                </dl>
+                              
+                              
+                              
+                              
+                              
+                              
+                              
+
+                            </div>
+                          </div>
+                        
+                          
+                        
+                        
+                        <!-- ============================== field details ========================== -->		
+                        
+
+                        <!-- ============================== method details ========================= -->		
+                        
+                          <div class="sectionTitle">
+                            Method Detail
+                          </div>
+                          
+                            <div class="module">
+                            <a name="createQueue"> </a>
+                            <h2><span></span>
+
+                              
+                              <strong>createQueue</strong>(name, attrs, fn)
+
+                            </h2>
+                            <p class="description">
+                              Create a SQS queue
+                            </p>
+                              
+                              
+
+                            
+
+                            
+                              <dl class="detailList">
+                                <dt class="heading">Parameters:</dt>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{string}</span> <strong>name</strong>
+                                    
+                                  </dt>
+                                  <dd>The name of the queue
+  Constraints: Maximum 80 characters; alphanumeric characters, hyphens (-),
+  and underscores (_) are allowed.</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{object}</span> <strong>attrs</strong>
+                                    <em>Optional</em>
+                                  </dt>
+                                  <dd>Attributes for the queue.</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{number}</span> <strong>attrs.VisibilityTimeout</strong>
+                                    <em>Optional</em>
+                                  </dt>
+                                  <dd>The length of time (in seconds) that a
+message received from a queue will be invisible to other receiving components
+when they ask to receive messages. For more information about
+VisibilityTimeout, see Visibility Timeout in the Amazon SQS Developer Guide.
+An integer from 0 to 43200 (12 hours). The default for this attribute is 30.</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{string}</span> <strong>attrs.Policy</strong>
+                                    <em>Optional</em>
+                                  </dt>
+                                  <dd>The formal description of the permissions for a resource.
+For more information about Policy, see Basic Policy Structure in the Amazon
+SQS Developer Guide. A valid form-url-encoded policy. For more information
+about policy structure, see Basic Policy Structure in the Amazon SQS
+Developer Guide. For more information about form-url-encoding,
+see http://www.w3.org/MarkUp/html-spec/html-spec_8.html#SEC8.2.1.</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{number}</span> <strong>attrs.MaximumMessageSize</strong>
+                                    <em>Optional</em>
+                                  </dt>
+                                  <dd>The limit of how many bytes a message can
+contain before Amazon SQS rejects it. An integer from 1024 bytes (1 KiB) up
+to 65536 bytes (64 KiB). The default for this attribute is 65536 (64 KiB).</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{number}</span> <strong>attrs.MessageRetentionPeriod</strong>
+                                    <em>Optional</em>
+                                  </dt>
+                                  <dd>The number of seconds Amazon SQS retains a
+message. Integer representing seconds, from 60 (1 minute) to 1209600
+(14 days). The default for this attribute is 345600 (4 days).</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{number}</span> <strong>attrs.DelaySeconds</strong>
+                                    <em>Optional</em>
+                                  </dt>
+                                  <dd>The time in seconds that the delivery of all messages
+in the queue will be delayed. An integer from 0 to 900 (15 minutes). The
+default for this attribute is 0 (zero).</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{Function}</span> <strong>fn</strong>
+                                    
+                                  </dt>
+                                  <dd>Callback function for when queue is created, Callback
+function takes two parameters error and result, result will be full name
+for the queue.</dd>
+                                
+                              </dl>
+                            
+                            
+                            
+                          
+                          
+                          
+                          
+                            <dl class="detailList">
+                              <dt class="heading">See:</dt>
+                              
+                                <dd>SQS.prototype.deleteQueue</dd>
+                              
+                            </dl>
+                          
+                          </div>
+                        
+                            <div class="module">
+                            <a name="deleteMessage"> </a>
+                            <h2><span></span>
+
+                              
+                              <strong>deleteMessage</strong>(queue, messageReceipt, fn)
+
+                            </h2>
+                            <p class="description">
+                              Deletes a message from a queue.
+                            </p>
+                              
+                              
+
+                            
+
+                            
+                              <dl class="detailList">
+                                <dt class="heading">Parameters:</dt>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{string}</span> <strong>queue</strong>
+                                    
+                                  </dt>
+                                  <dd>The full name of the queue to delete the
+message from, name should be something like /1212412123/nameOfQueue.</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{string}</span> <strong>messageReceipt</strong>
+                                    
+                                  </dt>
+                                  <dd>The message receipt of the message to
+delete.</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{Function}</span> <strong>fn</strong>
+                                    
+                                  </dt>
+                                  <dd>Callback function for deleting a message, callback will
+include an err (or null).</dd>
+                                
+                              </dl>
+                            
+                            
+                            
+                          
+                          
+                          
+                          
+                            <dl class="detailList">
+                              <dt class="heading">See:</dt>
+                              
+                                <dd>SQS.prototype.deleteMessage</dd>
+                              
+                            </dl>
+                          
+                          </div>
+                        
+                            <div class="module">
+                            <a name="deleteMessageBatch"> </a>
+                            <h2><span></span>
+
+                              
+                              <strong>deleteMessageBatch</strong>(queue, messageReceipts, fn)
+
+                            </h2>
+                            <p class="description">
+                              Deletes a batch of messages from a queue.
+                            </p>
+                              
+                              
+
+                            
+
+                            
+                              <dl class="detailList">
+                                <dt class="heading">Parameters:</dt>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{string}</span> <strong>queue</strong>
+                                    
+                                  </dt>
+                                  <dd>The full name of the queue to delete the
+message from, name should be something like /1212412123/nameOfQueue.</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{Array}</span> <strong>messageReceipts</strong>
+                                    
+                                  </dt>
+                                  <dd>An array of message receipts to delete from
+the queue.</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{Function}</span> <strong>fn</strong>
+                                    
+                                  </dt>
+                                  <dd>Callback function for deleting messages, callback will
+include an err (or null).</dd>
+                                
+                              </dl>
+                            
+                            
+                            
+                          
+                          
+                          
+                          
+                            <dl class="detailList">
+                              <dt class="heading">See:</dt>
+                              
+                                <dd>SQS.prototype.deleteMessageBatch</dd>
+                              
+                            </dl>
+                          
+                          </div>
+                        
+                            <div class="module">
+                            <a name="deleteQueue"> </a>
+                            <h2><span></span>
+
+                              
+                              <strong>deleteQueue</strong>(name, fn)
+
+                            </h2>
+                            <p class="description">
+                              Deletes a SQS queue.
+                            </p>
+                              
+                              
+
+                            
+
+                            
+                              <dl class="detailList">
+                                <dt class="heading">Parameters:</dt>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{string}</span> <strong>name</strong>
+                                    
+                                  </dt>
+                                  <dd>The full name for the queue, should be something like
+/12312301239/nameOfQueue.</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{Function}</span> <strong>fn</strong>
+                                    
+                                  </dt>
+                                  <dd>Callback function for when queue is created
+  Callback function takes one parameter, error</dd>
+                                
+                              </dl>
+                            
+                            
+                            
+                          
+                          
+                          
+                          
+                            <dl class="detailList">
+                              <dt class="heading">See:</dt>
+                              
+                                <dd>SQS.prototype.createQueue</dd>
+                              
+                            </dl>
+                          
+                          </div>
+                        
+                            <div class="module">
+                            <a name="getQueueUrl"> </a>
+                            <h2><span></span>
+
+                              
+                              <strong>getQueueUrl</strong>(name, fn)
+
+                            </h2>
+                            <p class="description">
+                              Returns the full qualified url for a queue.
+                            </p>
+                              
+                              
+
+                            
+
+                            
+                              <dl class="detailList">
+                                <dt class="heading">Parameters:</dt>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{string}</span> <strong>name</strong>
+                                    
+                                  </dt>
+                                  <dd>The full name of the queue, should be something like
+/12312301239/nameOfQueue.</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{Function}</span> <strong>fn</strong>
+                                    
+                                  </dt>
+                                  <dd>The callback for when the url is retrieved, Callback
+function should take two parameters, error and result which is queue url</dd>
+                                
+                              </dl>
+                            
+                            
+                            
+                          
+                          
+                          
+                          
+                            <dl class="detailList">
+                              <dt class="heading">See:</dt>
+                              
+                                <dd>SQS.prototype.listQueues</dd>
+                              
+                            </dl>
+                          
+                          </div>
+                        
+                            <div class="module">
+                            <a name="listQueues"> </a>
+                            <h2><span></span>
+
+                              
+                              <strong>listQueues</strong>(prefix, fn)
+
+                            </h2>
+                            <p class="description">
+                              Returns a list of available queues.
+                            </p>
+                              
+                              
+
+                            
+
+                            
+                              <dl class="detailList">
+                                <dt class="heading">Parameters:</dt>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{string}</span> <strong>prefix</strong>
+                                    <em>Optional</em>
+                                  </dt>
+                                  <dd>Queue name prefix to filter the list of queues to
+return.</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{Function}</span> <strong>fn</strong>
+                                    
+                                  </dt>
+                                  <dd>The callback for when the queue list is retrieved,
+Callback function should take two parameters, error and result which is
+an array of queue names</dd>
+                                
+                              </dl>
+                            
+                            
+                            
+                          
+                          
+                          
+                          
+                            <dl class="detailList">
+                              <dt class="heading">See:</dt>
+                              
+                                <dd>SQS.prototype.getQueueUrl</dd>
+                              
+                            </dl>
+                          
+                          </div>
+                        
+                            <div class="module">
+                            <a name="receiveMessage"> </a>
+                            <h2><span></span>
+
+                              
+                              <strong>receiveMessage</strong>(queue, opts, fn)
+
+                            </h2>
+                            <p class="description">
+                              Retrieves any messages from a queue if any are available. If none are
+available then an empty array is returned as the result.
+                            </p>
+                              
+                              
+
+                            
+
+                            
+                              <dl class="detailList">
+                                <dt class="heading">Parameters:</dt>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{string}</span> <strong>queue</strong>
+                                    
+                                  </dt>
+                                  <dd>The full name of the queue to check for messages,
+should look something like /12312301239/nameOfQueue.</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{object}</span> <strong>opts</strong>
+                                    <em>Optional</em>
+                                  </dt>
+                                  <dd>Options for retreiving messages.</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{number}</span> <strong>opts.MaxNumberOfMessages</strong>
+                                    <em>Optional</em>
+                                  </dt>
+                                  <dd>The max number of messages to pull
+from queue.</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{number}</span> <strong>opts.VisibilityTimeout</strong>
+                                    <em>Optional</em>
+                                  </dt>
+                                  <dd>The length of time in seconds that a
+message is not visible for receive requests after returned from this one.</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{Function}</span> <strong>fn</strong>
+                                    
+                                  </dt>
+                                  <dd>The callback for when the message(s) are pulled from
+queue, Callback function should take two parameters, error and result which
+is an array of messages.</dd>
+                                
+                              </dl>
+                            
+                            
+                            
+                          
+                          
+                          
+                          
+                            <dl class="detailList">
+                              <dt class="heading">See:</dt>
+                              
+                                <dd>SQS.prototype.sendMessage</dd>
+                              
+                            </dl>
+                          
+                          </div>
+                        
+                            <div class="module">
+                            <a name="sendMessage"> </a>
+                            <h2><span></span>
+
+                              
+                              <strong>sendMessage</strong>(queue, message, delay, fn)
+
+                            </h2>
+                            <p class="description">
+                              Sends a message to a queue.
+                            </p>
+                              
+                              
+
+                            
+
+                            
+                              <dl class="detailList">
+                                <dt class="heading">Parameters:</dt>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{string}</span> <strong>queue</strong>
+                                    
+                                  </dt>
+                                  <dd>The full name of the queue. Should be something like
+/12312301239/nameOfQueue.</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{string}</span> <strong>message</strong>
+                                    
+                                  </dt>
+                                  <dd>The message to add to the queue.</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{number}</span> <strong>delay</strong>
+                                    <em>Optional</em>
+                                  </dt>
+                                  <dd>The delay to wait before the message is actually
+visible in the queue.</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{Function}</span> <strong>fn</strong>
+                                    
+                                  </dt>
+                                  <dd>The callback for when the message is add to queue,
+Callback function should take two parameters, error and result which is
+and the message details.</dd>
+                                
+                              </dl>
+                            
+                            
+                            
+                          
+                          
+                          
+                          
+                            <dl class="detailList">
+                              <dt class="heading">See:</dt>
+                              
+                                <dd>SQS.prototype.sendMessageBatch</dd>
+                              
+                            </dl>
+                          
+                          </div>
+                        
+                            <div class="module">
+                            <a name="sendMessageBatch"> </a>
+                            <h2><span></span>
+
+                              
+                              <strong>sendMessageBatch</strong>(queue, messages, fn)
+
+                            </h2>
+                            <p class="description">
+                              Sends a batch of messages to a queue.
+                            </p>
+                              
+                              
+
+                            
+
+                            
+                              <dl class="detailList">
+                                <dt class="heading">Parameters:</dt>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{string}</span> <strong>queue</strong>
+                                    
+                                  </dt>
+                                  <dd>The full name of the queue. Should be something like
+/12231231231/nameOfQueue.</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{Array}</span> <strong>messages</strong>
+                                    
+                                  </dt>
+                                  <dd>An array of objects, each object should have
+message property and optional delay property.</dd>
+                                
+                                  <dt>
+                                    <span class="fixedFont">{Function}</span> <strong>fn</strong>
+                                    
+                                  </dt>
+                                  <dd>The callback for when the message is add to queue,
+Callback function should take two parameters, error and result which is
+an array of message details.</dd>
+                                
+                              </dl>
+                            
+                            
+                            
+                          
+                          
+                          
+                          
+                            <dl class="detailList">
+                              <dt class="heading">See:</dt>
+                              
+                                <dd>SQS.prototype.sendMessage</dd>
+                              
+                            </dl>
+                          
+                          </div>
+                        
+                      
+
+                      <!-- ============================== event details ========================= -->		
+                      
+
+            </div><!-- #content_wrapper -->
+          </div><!-- #content -->
+          
+          <hr/>
+          
+        </div><!-- #box_wrapper -->
+      </div><!-- #box -->
+
+      <div id="footer">
+        
+        Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0 on Thu Jun 07 2012 23:35:18 GMT-0400 (EDT)
+      </div><!-- #footer -->
+
+    </div><!-- #wrapper -->
+  </div><!-- #body_wrapper -->
+</body>
+</html>
