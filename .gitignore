@@ -4,3 +4,6 @@ npm-debug.log
 
 # DS Store
 .DS_Store
+
+# Test Keys
+keys-real.js

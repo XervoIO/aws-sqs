@@ -119,6 +119,28 @@ vows.describe('Simple Queue Service').addBatch({
     }
   }
 }).addBatch({
+  'A batch message' : {
+    topic: new SQS(keys.id, keys.secret),
+
+    'when sending a batch of messages' : {
+      topic: function(sqs) {
+        sqs.sendMessageBatch(
+          '/158798613855/testQueue',
+          [{message : 'foo'}, {message : 'bar'}],
+          this.callback
+        );
+      },
+
+      'results in information about the messages sent' : function(err, result) {
+        assert.isNull(err);
+        assert.isArray(result);
+        assert.lengthOf(result, 2);
+        assert.equal(result[0].Id, '0');
+        assert.equal(result[1].Id, '1');
+      }
+    }
+  }
+}).addBatch({
   'A queue' : {
     topic: new SQS(keys.id, keys.secret),
 
