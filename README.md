@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/onmodulus/aws-sqs.png)](http://travis-ci.org/onmodulus/aws-sqs)
 aws-sqs
 =======
 
