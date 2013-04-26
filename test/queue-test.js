@@ -4,6 +4,21 @@ var vows = require('vows'),
 var keys = require('./keys');
 var SQS = require('../lib/sqs');
 
+/** Helper function to get the qualified queue */
+var getQualifiedQueue = function (name, cb) {
+  return function (messages, sqs) {
+    this.sqs = (messages instanceof SQS) ? messages : sqs;
+    if (!(messages instanceof SQS)) this.messages = messages;
+    var that = this;
+    this.sqs.listQueues(name, function (err, result) {
+      if (!err) { 
+        that.queue = result[0];
+        cb.call(that); 
+      } else that.callback(err);
+    });
+  }
+};
+
 // Create a Test Suite
 vows.describe('Simple Queue Service').addBatch({
   'A queue' : {
@@ -16,7 +31,7 @@ vows.describe('Simple Queue Service').addBatch({
 
       'results in new queue': function (err, result) {
         assert.isNull(err);
-        assert.equal(result, '/158798613855/testQueue');
+        assert.match(result, /\/\d+\/testQueue/);
       }
     },
     'when creating a queue with visibility timeout': {
@@ -26,7 +41,7 @@ vows.describe('Simple Queue Service').addBatch({
 
       'results in new queue': function (err, result) {
         assert.isNull(err);
-        assert.equal(result, '/158798613855/testTimeoutQueue');
+        assert.match(result, /\/\d+\/testTimeoutQueue/);
       }
     }
   }
@@ -41,7 +56,7 @@ vows.describe('Simple Queue Service').addBatch({
 
       'results in correct url': function (err, result) {
         assert.isNull(err);
-        assert.equal(result, 'https://sqs.us-east-1.amazonaws.com/158798613855/testQueue');
+        assert.match(result, /https:\/{2}sqs\.[a-z0-9\-]+.amazonaws.com\/\d+\/testQueue/);
       }
     },
     'when retrieving list of queues': {
@@ -51,7 +66,8 @@ vows.describe('Simple Queue Service').addBatch({
 
       'results in array of queue names': function (err, result) {
         assert.isNull(err);
-        assert.notDeepEqual(result, ['/158798613855/testQueue']);
+        assert.isArray(result);
+        assert.isTrue(result.some(function (q) { return typeof(q) === 'string' && q.match(/\/\d+\/testQueue/)}));
       }
     },
     'when retrieving list of queues with prefix': {
@@ -61,7 +77,9 @@ vows.describe('Simple Queue Service').addBatch({
 
       'results in array of queue names': function (err, result) {
         assert.isNull(err);
-        assert.notDeepEqual(result, ['/158798613855/testQueue', '/158798613855/testTimeoutQueue']);
+        assert.isArray(result);
+        assert.isTrue(result.some(function (q) { return typeof(q) === 'string' && q.match(/\/\d+\/testTimeoutQueue/)}));
+        assert.isFalse(result.some(function (q) { return typeof(q) === 'string' && q.match(/\/\d+\/testQueue/)}));
       }
     }
   },
@@ -69,9 +87,9 @@ vows.describe('Simple Queue Service').addBatch({
     topic: new SQS(keys.id, keys.secret),
 
     'when sending a message' : {
-      topic: function(sqs) {
-        sqs.sendMessage('/158798613855/testQueue', 'this is a test message', this.callback);
-      },
+      topic: getQualifiedQueue('testQueue', function () {
+        this.sqs.sendMessage(this.queue, 'this is a test message', this.callback);
+      }),
 
       'results in information about message' : function(err, result) {
         assert.isNull(err);
@@ -79,9 +97,9 @@ vows.describe('Simple Queue Service').addBatch({
       }
     },
     'when sending another message' : {
-      topic: function(sqs) {
-        sqs.sendMessage('/158798613855/testTimeoutQueue', 'this is a timeout test message', this.callback);
-      },
+      topic: getQualifiedQueue('testTimeoutQueue', function () {
+        this.sqs.sendMessage(this.queue, 'this is a timeout test message', this.callback);
+      }),
 
       'results in information about message' : function(err, result) {
         assert.isNull(err);
@@ -94,9 +112,9 @@ vows.describe('Simple Queue Service').addBatch({
     topic: new SQS(keys.id, keys.secret),
 
     'when receiving a message' : {
-      topic: function(sqs) {
-        sqs.receiveMessage('/158798613855/testQueue', this.callback);
-      },
+      topic: getQualifiedQueue('testQueue', function () {
+        this.sqs.receiveMessage(this.queue, this.callback);
+      }),
 
       'results in message' : function(err, result) {
         assert.isNull(err);
@@ -104,14 +122,14 @@ vows.describe('Simple Queue Service').addBatch({
       }
     },
     'when receiving another message' : {
-      topic: function(sqs) {
-        sqs.receiveMessage('/158798613855/testTimeoutQueue', this.callback);
-      },
+      topic: getQualifiedQueue('testTimeoutQueue', function () {
+        this.sqs.receiveMessage(this.queue, this.callback);
+      }),
 
       'after successfully reading the message' : {
-        topic : function(messages, sqs) {
-          sqs.deleteMessage('/158798613855/testTimeoutQueue', message[0].ReceiptHandle, this.callback);
-        },
+        topic: getQualifiedQueue('testTimeoutQueue', function() {
+          this.sqs.deleteMessage(this.queue, this.messages[0].ReceiptHandle, this.callback);
+        }),
         'we can delete the message' : function(err, result) {
           assert.isNull(err);
         }
@@ -123,13 +141,13 @@ vows.describe('Simple Queue Service').addBatch({
     topic: new SQS(keys.id, keys.secret),
 
     'when sending a batch of messages' : {
-      topic: function(sqs) {
-        sqs.sendMessageBatch(
-          '/158798613855/testQueue',
+      topic: getQualifiedQueue('testQueue', function () {
+        this.sqs.sendMessageBatch(
+          this.queue,
           [{message : 'foo'}, {message : 'bar'}],
           this.callback
         );
-      },
+      }),
 
       'results in information about the messages sent' : function(err, result) {
         assert.isNull(err);
@@ -145,18 +163,18 @@ vows.describe('Simple Queue Service').addBatch({
     topic: new SQS(keys.id, keys.secret),
 
     'when deleting a queue': {
-      topic: function(sqs) {
-        sqs.deleteQueue('/158798613855/testQueue', this.callback);
-      },
+      topic: getQualifiedQueue('testQueue', function () {
+        this.sqs.deleteQueue(this.queue, this.callback);
+      }),
 
       'results in success': function (err, result) {
         assert.isNull(err);
       }
     },
     'when deleting another queue': {
-      topic: function(sqs) {
-        sqs.deleteQueue('/158798613855/testTimeoutQueue', this.callback);
-      },
+      topic: getQualifiedQueue('testTimeoutQueue', function () {
+        this.sqs.deleteQueue(this.queue, this.callback);
+      }),
 
       'results in success': function (err, result) {
         assert.isNull(err);
