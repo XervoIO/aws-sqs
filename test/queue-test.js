@@ -162,6 +162,22 @@ vows.describe('Simple Queue Service').addBatch({
   'A queue' : {
     topic: new SQS(keys.id, keys.secret),
 
+    'when requesting queue attributes': {
+      topic: getQualifiedQueue('testQueue', function () {
+        this.sqs.getQueueAttributes(this.queue, this.callback);
+      }),
+
+      'results in information about the queue': function (err, result) {
+        assert.isNull(err);
+        assert.isObject(result);
+        assert.includes(result, 'ApproximateNumberOfMessages');
+      } 
+    }
+  }
+}).addBatch({
+  'A queue' : {
+    topic: new SQS(keys.id, keys.secret),
+
     'when deleting a queue': {
       topic: getQualifiedQueue('testQueue', function () {
         this.sqs.deleteQueue(this.queue, this.callback);
