@@ -12,7 +12,7 @@
     "aws-lib": "0.0.6"
   },
   "devDependencies": {
-    "vows": "0.6.2"
+    "vows": "0.7.0"
   },
   "main": "lib/sqs",
   "directories": {
