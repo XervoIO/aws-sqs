@@ -1,12 +1,13 @@
 {
   "name" : "aws-sqs",
-  "version" : "0.0.4",
+  "version" : "0.0.5",
   "author" : "Modulus <support@onmodulus.com>",
   "description" : "Amazon AWS SQS (Simple Queue Service) library for Node.js that is user-friendly",
   "keywords": ["amazon","aws","sqs","simple queue service","wrapper","api", "queue"],
   "homepage" : "http://onmodulus.github.com/aws-sqs/symbols/SQS.html",
   "contributors": [
-    "Charlie Key <charlie@onmodulus.com> (http://www.paranoidferret.com/)"
+    "Charlie Key <charlie@modulus.io> (http://modulus.io)",
+    "Patrick Lodder <patrick.lodder@intellibiz.org> (https://github.com/patricklodder)"
   ],
   "dependencies": {
     "aws-lib": "0.0.6"
