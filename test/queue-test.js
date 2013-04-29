@@ -19,7 +19,7 @@ var getQualifiedQueue = function (name, cb) {
         cb.call(that); 
       } else that.callback(err);
     });
-  }
+  };
 };
 
 // Create a Test Suite
@@ -51,7 +51,7 @@ vows.describe('Simple Queue Service').addBatch({
   }
 }).addBatch({
   'A queue' : {
-    topic: new SQS(keys.id, keys.secret, {region: REGION, altEndPoint: true }),
+    topic: new SQS(keys.id, keys.secret, {region: REGION, altEndPoint: true}),
 
     'when creating a queue over an alternate endpoint': {
       topic: function(sqs) {
@@ -87,7 +87,7 @@ vows.describe('Simple Queue Service').addBatch({
       'results in array of queue names': function (err, result) {
         assert.isNull(err);
         assert.isArray(result);
-        assert.isTrue(result.some(function (q) { return typeof(q) === 'string' && q.match(/\/\d+\/testQueue/)}));
+        assert.isTrue(result.some(function (q) { return typeof(q) === 'string' && q.match(/\/\d+\/testQueue/); }));
       }
     },
     'when retrieving list of queues with prefix': {
@@ -98,8 +98,8 @@ vows.describe('Simple Queue Service').addBatch({
       'results in array of queue names': function (err, result) {
         assert.isNull(err);
         assert.isArray(result);
-        assert.isTrue(result.some(function (q) { return typeof(q) === 'string' && q.match(/\/\d+\/testTimeoutQueue/)}));
-        assert.isFalse(result.some(function (q) { return typeof(q) === 'string' && q.match(/\/\d+\/testQueue/)}));
+        assert.isTrue(result.some(function (q) { return typeof(q) === 'string' && q.match(/\/\d+\/testTimeoutQueue/); }));
+        assert.isFalse(result.some(function (q) { return typeof(q) === 'string' && q.match(/\/\d+\/testQueue/); }));
       }
     }
   },
@@ -205,7 +205,7 @@ vows.describe('Simple Queue Service').addBatch({
       'results in information about that attribute': function (err, result) {
         assert.isNull(err);
         assert.isObject(result);
-        assert.deepEqual(Object.keys(result), ['ApproximateNumberOfMessages'])
+        assert.deepEqual(Object.keys(result), ['ApproximateNumberOfMessages']);
       }
     }
   }
