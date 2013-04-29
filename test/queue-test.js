@@ -4,6 +4,9 @@ var vows = require('vows'),
 var keys = require('./keys');
 var SQS = require('../lib/sqs');
 
+// Statics
+var REGION = 'us-east-1';
+
 /** Helper function to get the qualified queue */
 var getQualifiedQueue = function (name, cb) {
   return function (messages, sqs) {
@@ -22,7 +25,7 @@ var getQualifiedQueue = function (name, cb) {
 // Create a Test Suite
 vows.describe('Simple Queue Service').addBatch({
   'A queue' : {
-    topic: new SQS(keys.id, keys.secret),
+    topic: new SQS(keys.id, keys.secret, {region: REGION}),
 
     'when creating a queue without attributes': {
       topic: function(sqs) {
@@ -34,6 +37,7 @@ vows.describe('Simple Queue Service').addBatch({
         assert.match(result, /\/\d+\/testQueue/);
       }
     },
+
     'when creating a queue with visibility timeout': {
       topic: function(sqs) {
         sqs.createQueue('testTimeoutQueue', {VisibilityTimeout : 120}, this.callback);
@@ -47,7 +51,23 @@ vows.describe('Simple Queue Service').addBatch({
   }
 }).addBatch({
   'A queue' : {
-    topic: new SQS(keys.id, keys.secret),
+    topic: new SQS(keys.id, keys.secret, {region: REGION, altEndPoint: true }),
+
+    'when creating a queue over an alternate endpoint': {
+      topic: function(sqs) {
+        sqs.createQueue('testAltEndpointQueue', {VisibilityTimeout : 120}, this.callback);
+      },
+
+      'results in new queue': function (err, result) {
+        assert.isNull(err);
+        assert.match(result, /\/\d+\/testAltEndpointQueue/);
+      }
+    }
+  
+  }
+}).addBatch({
+  'A queue' : {
+    topic: new SQS(keys.id, keys.secret, {region: REGION}),
 
     'when retreiving a queue url': {
       topic: function(sqs) {
@@ -84,7 +104,7 @@ vows.describe('Simple Queue Service').addBatch({
     }
   },
   'A message' : {
-    topic: new SQS(keys.id, keys.secret),
+    topic: new SQS(keys.id, keys.secret, {region: REGION}),
 
     'when sending a message' : {
       topic: getQualifiedQueue('testQueue', function () {
@@ -109,7 +129,7 @@ vows.describe('Simple Queue Service').addBatch({
   }
 }).addBatch({
   'A message' : {
-    topic: new SQS(keys.id, keys.secret),
+    topic: new SQS(keys.id, keys.secret, {region: REGION}),
 
     'when receiving a message' : {
       topic: getQualifiedQueue('testQueue', function () {
@@ -138,7 +158,7 @@ vows.describe('Simple Queue Service').addBatch({
   }
 }).addBatch({
   'A batch message' : {
-    topic: new SQS(keys.id, keys.secret),
+    topic: new SQS(keys.id, keys.secret, {region: REGION}),
 
     'when sending a batch of messages' : {
       topic: getQualifiedQueue('testQueue', function () {
@@ -160,7 +180,7 @@ vows.describe('Simple Queue Service').addBatch({
   }
 }).addBatch({
   'A queue' : {
-    topic: new SQS(keys.id, keys.secret),
+    topic: new SQS(keys.id, keys.secret, {region: REGION}),
 
     'when requesting all queue attributes': {
       topic: getQualifiedQueue('testQueue', function () {
@@ -191,7 +211,7 @@ vows.describe('Simple Queue Service').addBatch({
   }
 }).addBatch({
   'A queue' : {
-    topic: new SQS(keys.id, keys.secret),
+    topic: new SQS(keys.id, keys.secret, {region: REGION}),
 
     'when deleting a queue': {
       topic: getQualifiedQueue('testQueue', function () {
@@ -204,6 +224,15 @@ vows.describe('Simple Queue Service').addBatch({
     },
     'when deleting another queue': {
       topic: getQualifiedQueue('testTimeoutQueue', function () {
+        this.sqs.deleteQueue(this.queue, this.callback);
+      }),
+
+      'results in success': function (err, result) {
+        assert.isNull(err);
+      }
+    },
+    'when deleting the alternate queue': {
+      topic: getQualifiedQueue('testAltEndpointQueue', function () {
         this.sqs.deleteQueue(this.queue, this.callback);
       }),
 
