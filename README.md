@@ -1,4 +1,4 @@
-[![build status](https://secure.travis-ci.org/onmodulus/aws-sqs.png)](http://travis-ci.org/onmodulus/aws-sqs)
+[![build status](https://secure.travis-ci.org/XervoIO/aws-sqs.png)](http://travis-ci.org/XervoIO/aws-sqs)
 aws-sqs
 =======
 
