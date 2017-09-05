@@ -33,6 +33,10 @@
     "url": "https://github.com/XervoIO/aws-sqs.git"
   },
   "engines": {
-    "node": ">=0.4.10"
+    "node": ">=0.4.10",
+    "npm": ">=3.0"
+  },
+  "scripts": {
+    "test": "node test/queue-test.js"
   }
 }
